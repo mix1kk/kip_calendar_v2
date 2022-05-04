@@ -1,11 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:kip_calendar_v2/Users/Users.dart';
-import 'package:kip_calendar_v2/Menu/Menu.dart';
-import 'package:kip_calendar_v2/Events/Events.dart';
 import 'StatesAndVariables.dart';
+import 'firestore.dart';
 import 'styles.dart';
-import 'dart:ui';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 // import 'package:firebase_core/firebase_core.dart';
@@ -14,10 +11,6 @@ double rowHeight = 40.0; // Высота строк
 double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
 
 class Widgets {
-  final Function update;
-
-  Widgets(this.update);
-
   static getNumberOfWeek(DateTime day) {
     //возвращает номер недели введенного дня
     final startOfYear = DateTime(day.year);
@@ -316,29 +309,49 @@ class Widgets {
   }
 
   static Widget usersScreen(DateTime day, context) {
+    final Stream<QuerySnapshot> _usersStream =
+        FirebaseFirestore.instance.collection('users').snapshots();
     //основная таблица  на экране UsersScreen
     return Expanded(
       // child: RefreshIndicator(
       //   onRefresh: pullRefresh,
-      child: ListView.builder(itemBuilder: (context, index) {
-        return Column(children: [
-          SizedBox(
-            height: rowHeight * 2,
-            child: usersMainScreenName(context, index),
-            //построение основной таблицы строка за строкой
-          ),
-          SizedBox(
-            height: States.isNamePressed?rowHeight * 10:0.0,
-            child: usersMainScreenData(context, index),
-            //построение основной таблицы строка за строкой
-          ),
-        ]);
-      }),
-      // ),
+      child: StreamBuilder<QuerySnapshot>(
+          stream: _usersStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            int number = 0;
+            if (snapshot.hasError) {
+              return const Text('Something went wrong');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+              //const Text("Loading");
+            }
+            return ListView(
+              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                number++;
+                Map<String, dynamic> data =
+                    document.data()! as Map<String, dynamic>;
+                return Column(children: [
+                  SizedBox(
+                    height: rowHeight * 2,
+                    child: usersMainScreenName(context, number, data),
+                    //заголовок пользователя в списке пользователей
+                  ),
+                  SizedBox(
+                    height: States.isNamePressed[number] ? rowHeight * 10 : 0.0,
+                    child: usersMainScreenData(context, data),
+                    //данные пользователя в списке пользователей
+                  ),
+                ]);
+              }).toList(),
+            );
+          }),
     );
   }
 
-  static Widget usersMainScreenName(context, index) {
+  static Widget usersMainScreenName(context, int index, data) {
     return Row(
       children: [
         Container(
@@ -348,7 +361,7 @@ class Widgets {
             child: ElevatedButton(
               style: ButtonStyles.headerButtonStyle,
               onPressed: () {},
-              child: Text('${index + 1}'),
+              child: Text('$index'),
             )),
         Container(
             padding: const EdgeInsets.all(2.0),
@@ -357,19 +370,32 @@ class Widgets {
             child: ElevatedButton(
               style: ButtonStyles.usersListButtonStyle,
               onPressed: () {
-                States.isNamePressed=!States.isNamePressed;
-
+                Users.addUser(
+                  data['name'],
+                  data['password'],
+                  data['tableNumber'],
+                  data['position'],
+                  data['dateOfBirth'].toDate(),
+                  data['dateOfEmployment'].toDate(),
+                  data['scheduleName'],
+                  data['role'],
+                  !data['isExpanded'],
+                );
+                States.isNamePressed[index]=!States.isNamePressed[index];
               },
-              child: const Text('Байкин Михаил Сергеевич'),
+              child: ListTile(
+                title: Text(data['name']),
+                subtitle: Text(data['position']),
+              ),
             )),
       ],
     );
   }
 
-  static Widget usersMainScreenData(context, index) {
+  static Widget usersMainScreenData(context, Map<String, dynamic> data) {
     return Container(
       padding: const EdgeInsets.all(2.0),
-      height:rowHeight*10,
+      height: data['isExpanded'] ? rowHeight * 10 : 0.0,
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: [
@@ -377,11 +403,27 @@ class Widgets {
             padding: const EdgeInsets.all(2.0),
             height: rowHeight,
             width: MediaQuery.of(context).size.width,
-            child: ElevatedButton(
-              style: ButtonStyles.usersListButtonStyle,
-              onPressed: () {},
-              child: const Text('Байкин Михаил Сергеевич'),
-            ),
+            child:
+                Column(
+                  children: [
+                    const Divider(),
+                 TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'ФИО',),
+                  initialValue: data['name'],
+
+                ),
+                    const Divider(),
+
+                TextFormField(
+                  decoration: const InputDecoration(
+                    labelText: 'Должность',
+                      ),
+                  initialValue: data['position'],
+                    ),
+                  ]
+                )
+
           ),
         ],
       ),

@@ -1,8 +1,7 @@
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:kip_calendar_v2/Users/Users.dart';
-import 'package:kip_calendar_v2/Menu/Menu.dart';
-import 'package:kip_calendar_v2/Events/Events.dart';
-import 'package:kip_calendar_v2/styles.dart';
 import 'widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -10,21 +9,33 @@ import 'StatesAndVariables.dart';
 import 'DayCalendar.dart';
 
 
-void main() {
+void main() async {
   initializeDateFormatting('ru', null);
   Intl.defaultLocale = 'ru';
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
 
-  runApp(MaterialApp(
-    initialRoute: '/calendar',
-    routes: {
+  runApp(MyApp());
+}
+class MyApp extends StatelessWidget {
+ // static Model model = Model();
 
-       '/users': (context) => UsersScreen(),
-      // '/menu': (context) => MenuScreen(),
-      // '/events': (context) => EventsScreen(),
-      '/calendar': (context) => CalendarScreen(),
-      '/calendarDay': (context) => DayCalendarScreen(),
-    },
-  ));
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      initialRoute: '/calendar',
+      routes: {
+
+        '/users': (context) => UsersScreen(),
+        '/calendar': (context) => CalendarScreen(),
+        '/calendarDay': (context) => DayCalendarScreen(),
+      },
+           theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+     // home: CalendarScreen(),
+    );
+  }
 }
 
 class CalendarScreen extends StatefulWidget {

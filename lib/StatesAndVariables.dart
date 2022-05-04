@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 
 // class Refresh{
@@ -26,11 +24,14 @@ class States{
  static bool showDayTypes = false;
  static bool isPulled = false;
  static bool isLastWeek = false;
- static bool isNamePressed=false;
- // static Future Stream<bool> userListState() async{
- //
- //  return ;
- // }
+ static List<bool> isNamePressed=List.filled(250, false);
 
- // States(this.isPulled,this.isLastWeek);
+}
+class Model
+{
+ StreamController _streamController = StreamController<int>();
+
+ Stream<dynamic> get counterUpdates => _streamController.stream;
+
+
 }

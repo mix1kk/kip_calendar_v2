@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "257512280292",
+    "project_id": "kipia-47013",
+    "storage_bucket": "kipia-47013.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257512280292:android:5d5f0006afee3f02a65cf1",
+        "android_client_info": {
+          "package_name": "com.example.kip_calendar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257512280292-fcbh0eh9no0g84ju94k6shqgtge79el8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhHv4EbTZIUiO71OefgS8HyjWWQe1Gd6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257512280292-fcbh0eh9no0g84ju94k6shqgtge79el8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "257512280292-muvimqp1o1dsuf45reudesnjdll9hojl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kipcalendar"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257512280292:android:ef1a40997493475ea65cf1",
+        "android_client_info": {
+          "package_name": "com.example.kip_calendar_v2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257512280292-fcbh0eh9no0g84ju94k6shqgtge79el8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhHv4EbTZIUiO71OefgS8HyjWWQe1Gd6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257512280292-fcbh0eh9no0g84ju94k6shqgtge79el8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "257512280292-muvimqp1o1dsuf45reudesnjdll9hojl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kipcalendar"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
