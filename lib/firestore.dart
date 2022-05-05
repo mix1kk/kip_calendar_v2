@@ -4,38 +4,42 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class AddUser extends StatelessWidget {
-  final String fullName;
-  final String company;
-  final int age;
+import 'StatesAndVariables.dart';
 
-  AddUser(this.fullName, this.company, this.age);
 
-  @override
-  Widget build(BuildContext context) {
-    // Create a CollectionReference called users that references the firestore collection
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
 
-    Future<void> addUser() {
-      // Call the user's CollectionReference to add a new user
-      return users
-          .add({
-        'full_name': fullName, // John Doe
-        'company': company, // Stokes and Sons
-        'age': age // 42
-      })
-          .then((value) => print("User Added"))
-          .catchError((error) => print("Failed to add user: $error"));
-    }
-
-    return TextButton(
-      onPressed: addUser,
-      child: Text(
-        "Add User",
-      ),
-    );
-  }
-}
+// class AddUser extends StatelessWidget {
+//   final String fullName;
+//   final String company;
+//   final int age;
+//
+//   AddUser(this.fullName, this.company, this.age);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     // Create a CollectionReference called users that references the firestore collection
+//     CollectionReference users = FirebaseFirestore.instance.collection('users');
+//
+//     Future<void> addUser() {
+//       // Call the user's CollectionReference to add a new user
+//       return users
+//           .add({
+//         'full_name': fullName, // John Doe
+//         'company': company, // Stokes and Sons
+//         'age': age // 42
+//       })
+//           .then((value) => print("User Added"))
+//           .catchError((error) => print("Failed to add user: $error"));
+//     }
+//
+//     return TextButton(
+//       onPressed: addUser,
+//       child: Text(
+//         "Add User",
+//       ),
+//     );
+//   }
+// }
 
 
 //
@@ -122,92 +126,127 @@ class AddUser extends StatelessWidget {
 //   }
 // }
 
+
+// final String name = 'user';
+// final String password = '';
+// final String tableNumber = '001';
+// final String position = 'position';
+// final DateTime dateOfBirth = DateTime(2022);
+// final DateTime dateOfEmployment = DateTime(2022);
+// final String scheduleName = '0';
+// final String phoneNumber = '8 987 654 32 10';
+// final String role = 'user';
+// final bool isExpanded = false;
+// Users initialUser = Users(
+//     'user',
+//     '0',
+//     '001',
+//     'position',
+//     DateTime(2022),
+//     DateTime(2022),
+//     '0',
+//     'КИПиА',
+//     '8 987 654 32 10',
+//     'user',
+//     false);
+
 class Users {
-  static String name = 'user';
-  static String password = '';
-  static String tableNumber = '001';
-  static String position = 'position';
-  static DateTime dateOfBirth = DateTime(2022);
-  static DateTime dateOfEmployment = DateTime(2022);
-  static String scheduleName = '0';
-  static String role = 'user';
-  static bool isExpanded = false;
+   String name;
+   String password;
+   String tableNumber;
+   String position;
+   DateTime dateOfBirth;
+   DateTime dateOfEmployment;
+   String scheduleName;
+   String unit;
+   String phoneNumber;
+   String role;
+   bool isExpanded;
+
+  Users(this.name,
+      this.password,
+      this.tableNumber,
+      this.position,
+      this.dateOfBirth,
+      this.dateOfEmployment,
+      this.scheduleName,
+      this.unit,
+      this.phoneNumber,
+      this.role,
+      this.isExpanded);
+
+
 
   static addUser(
-      String name,
-      String password,
-      String tableNumber,
-      String position,
-      DateTime dateOfBirth,
-      DateTime dateOfEmployment,
-      String scheduleName,
-      String role,
-      bool isExpanded ) async {
+      Users user
+      )
+  async {
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(name)
+        .doc(user.name)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-      FirebaseFirestore.instance.collection('users').doc(name).set({
-        'name': name,
-        'password': password,
-        'tableNumber': tableNumber,
-        'dateOfBirth': dateOfBirth,
-        'position': position,
-        'dateOfEmployment': dateOfEmployment,
-        'scheduleName': scheduleName,
-        'role': 'user',
-        'isExpanded': isExpanded
+      FirebaseFirestore.instance.collection('users').doc(user.name).set({
+        'name': user.name,
+        'password': user.password,
+        'tableNumber': user.tableNumber,
+        'position': user.position,
+        'dateOfBirth': user.dateOfBirth,
+        'dateOfEmployment': user.dateOfEmployment,
+        'scheduleName': user.scheduleName,
+        'unit': user.unit,
+        'phoneNumber': user.phoneNumber,
+        'role': user.role,
+        'isExpanded': user.isExpanded
       });
     });
     // );
   }
 
-  // static Future getUser(String Name) async {
-  //   //чтение из базы данных
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(Name)
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot) {
-  //     name = documentSnapshot.get('name');
-  //     password = documentSnapshot.get('password');
-  //     tableNumber = documentSnapshot.get('tableNumber');
-  //     position = documentSnapshot.get('position');
-  //     dateOfBirth = documentSnapshot.get('dateOfBirth').toDate();
-  //     dateOfEmployment = documentSnapshot.get('dateOfEmployment').toDate();
-  //     scheduleName = documentSnapshot.get('scheduleName');
-  //     userName_controller.text = name;
-  //     tableNumber_controller.text = tableNumber;
-  //     position_controller.text = position;
-  //   });
-  //
-  //   await Events.getAllEvents([Name]);
-
-    //   return name;
-  // }
-
-  static getAllUsersNames() async {
+  static Future getUserByName(String Name) async {
+    Users user=Variables.currentUser;
     //чтение из базы данных
-    List<String> userNames = [];
     await FirebaseFirestore.instance
         .collection('users')
+        .doc(Name)
         .get()
-        .then((QuerySnapshot querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        userNames.add(doc.get('name'));
-      });
+        .then((DocumentSnapshot documentSnapshot) {
+       user=Users(
+      documentSnapshot.get('name'),
+      documentSnapshot.get('password'),
+      documentSnapshot.get('tableNumber'),
+      documentSnapshot.get('position'),
+      documentSnapshot.get('dateOfBirth').toDate(),
+      documentSnapshot.get('dateOfEmployment').toDate(),
+      documentSnapshot.get('scheduleName'),
+        documentSnapshot.get('unit'),
+        documentSnapshot.get('phoneNumber'),
+        documentSnapshot.get('role'),
+        documentSnapshot.get('isExpanded')
+      );
     });
-    return userNames;
+      return user;
   }
 
-  // static deleteUser(String userName) async {
+  // static getAllUsersNames() async {
   //   //чтение из базы данных
-  //   await FirebaseFirestore.instance.collection('users').doc(userName).delete();
-  //   allUsersList = await Users.getAllUsersNames();
-  //   await getUser('user');
-  //   // _selectedSchedule=scheduleName;
+  //   List<String> userNames = [];
+  //   await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .get()
+  //       .then((QuerySnapshot querySnapshot) {
+  //     querySnapshot.docs.forEach((doc) {
+  //       userNames.add(doc.get('name'));
+  //     });
+  //   });
+  //   return userNames;
   // }
+
+  static deleteUser(String userName) async {
+    //чтение из базы данных
+    await FirebaseFirestore.instance.collection('users').doc(userName).delete();
+    // _selectedSchedule=scheduleName;
+  }
 }
 
 // class Events {
