@@ -6,7 +6,11 @@ import 'firestore.dart';
 import 'styles.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 // import 'package:firebase_core/firebase_core.dart';
+final TextEditingController dateOfBirthController = TextEditingController();
+final TextEditingController dateOfEmploymentController =
+    TextEditingController();
 
 double rowHeight = 40.0; // Высота строк
 double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
@@ -386,16 +390,17 @@ class Widgets {
                   data['role'],
                   !data['isExpanded'],
                 );
-
+                dateOfBirthController.text =
+                    DateFormat.yMd().format(Variables.currentUser.dateOfBirth);
+                dateOfEmploymentController.text = DateFormat.yMd()
+                    .format(Variables.currentUser.dateOfEmployment);
                 Variables.setPrefs(data['name']);
 
-                if (States.isNamePressed[index])
-                  {
-                    States.isNamePressed=List.filled(250, false);
-                  }
-                else{
-                  States.isNamePressed=List.filled(250, false);
-                  States.isNamePressed[index]=!States.isNamePressed[index];
+                if (States.isNamePressed[index]) {
+                  States.isNamePressed = List.filled(250, false);
+                } else {
+                  States.isNamePressed = List.filled(250, false);
+                  States.isNamePressed[index] = !States.isNamePressed[index];
                 }
                 Users.addUser(//сделано для обновления экрана
                     Variables.currentUser);
@@ -409,7 +414,8 @@ class Widgets {
     );
   }
 
-  static Widget usersMainScreenData(context, index, Map<String, dynamic> data) {//полные данные пользователей
+  static Widget usersMainScreenData(context, index, Map<String, dynamic> data) {
+    //полные данные пользователей
     return Container(
       padding: const EdgeInsets.all(2.0),
       // height: States.isNamePressed[number] ? rowHeight * 15 : 0.0,
@@ -422,7 +428,7 @@ class Widgets {
             ),
             readOnly: Variables.selectedUser.role != 'admin',
             initialValue: data['name'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.name = value;
             },
           ),
@@ -434,7 +440,7 @@ class Widgets {
             obscureText: Variables.selectedUser.role != 'admin',
             obscuringCharacter: '*',
             initialValue: data['password'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.password = value;
             },
           ),
@@ -444,7 +450,7 @@ class Widgets {
               labelText: 'Табельный номер',
             ),
             initialValue: data['tableNumber'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.tableNumber = value;
             },
           ),
@@ -454,36 +460,50 @@ class Widgets {
               labelText: 'Должность',
             ),
             initialValue: data['position'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.position = value;
             },
           ),
           TextFormField(
+            controller: dateOfBirthController,
             readOnly: true,
             //Variables.selectedUser.role != 'admin',
             onTap: () async {
-              Variables.currentUser.dateOfBirth = await AlertDialogs.selectDate(Variables.currentUser.dateOfBirth, context);
+              if (Variables.selectedUser.role == 'admin') {
+                Variables.currentUser.dateOfBirth =
+                    await AlertDialogs.selectDate(
+                        Variables.currentUser.dateOfBirth, context);
+                dateOfBirthController.text =
+                    DateFormat.yMd().format(Variables.currentUser.dateOfBirth);
+              }
             },
             decoration: const InputDecoration(
               labelText: 'Дата рождения',
             ),
-            initialValue: DateFormat.yMd()
-                .format(data['dateOfBirth'].toDate())
-                .toString(),
+            // initialValue: DateFormat.yMd()
+            //     .format(data['dateOfBirth'].toDate())
+            //     .toString(),
           ),
           TextFormField(
+            controller: dateOfEmploymentController,
             readOnly: true,
             //Variables.selectedUser.role != 'admin',
-            onTap:() async {
-              Variables.currentUser.dateOfEmployment = await AlertDialogs.selectDate(Variables.currentUser.dateOfEmployment, context);
-          //    FocusManager.instance.primaryFocus?.unfocus();
+            onTap: () async {
+              if (Variables.selectedUser.role == 'admin') {
+                Variables.currentUser.dateOfEmployment =
+                    await AlertDialogs.selectDate(
+                        Variables.currentUser.dateOfEmployment, context);
+                dateOfEmploymentController.text = DateFormat.yMd()
+                    .format(Variables.currentUser.dateOfEmployment);
+                //    FocusManager.instance.primaryFocus?.unfocus();
+              }
             },
             decoration: const InputDecoration(
               labelText: 'Дата трудоустройства',
             ),
-            initialValue: DateFormat.yMd()
-                .format(data['dateOfEmployment'].toDate())
-                .toString(),
+            // initialValue: DateFormat.yMd()
+            //     .format(data['dateOfEmployment'].toDate())
+            //     .toString(),
           ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',
@@ -491,7 +511,7 @@ class Widgets {
               labelText: 'График',
             ),
             initialValue: data['scheduleName'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.scheduleName = value;
             },
           ),
@@ -501,28 +521,28 @@ class Widgets {
               labelText: 'Подразделение',
             ),
             initialValue: data['unit'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.unit = value;
             },
           ),
           TextFormField(
-            readOnly: false,
+            keyboardType: TextInputType.phone,
+            readOnly: !((Variables.selectedUser.role == 'admin')|(Variables.selectedUser.name==Variables.currentUser.name)),
             decoration: const InputDecoration(
               labelText: 'Номер телефона',
             ),
             initialValue: data['phoneNumber'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.phoneNumber = value;
             },
           ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',
-
             decoration: const InputDecoration(
               labelText: 'Уровень доступа',
             ),
             initialValue: data['role'],
-            onChanged: (value){
+            onChanged: (value) {
               Variables.currentUser.role = value;
             },
           ),
@@ -532,36 +552,25 @@ class Widgets {
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
-                    Users.deleteUser(Variables.currentUser.name);
-                    Navigator.pushNamed(context, '/users');
+                    if (Variables.selectedUser.role == 'admin') {
+                      AlertDialogs.deleteAlertDialogUserScreen(context, index);
+
+                    }
                   },
                   icon: const Icon(Icons.delete),
                   label: const Text('Удалить   ')),
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
-           //    showDialog(
-           // context: context,
-           //  builder: (BuildContext context) {
-           //    return AlertDialog(
-           //    content:
-
-               Users.addUser(Variables.currentUser);
-
-               Navigator.pushNamed(context, '/users');
+                      Users.addUser(Variables.currentUser);
                   },
                   icon: const Icon(Icons.save),
                   label: const Text('Сохранить   ')),
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
-                    Variables.selectedUser = Variables.currentUser;
-                    States.isNamePressed[index] = !States.isNamePressed[index];
-                    //сделано для обновления экрана
-                    Variables.currentUser.isExpanded =
-                        !Variables.currentUser.isExpanded;
-                    Users.addUser(Variables.currentUser);
-                    //сделано для обновления экрана
+                    AlertDialogs.selectAlertDialogUserScreen(context, index);
+                    // AlertDialogs.selectAlertDialogUserScreen(context,index);
                   },
                   icon: const Icon(Icons.adjust),
                   label: const Text('Выбрать   ')),
