@@ -4,15 +4,15 @@ import 'package:kip_calendar_v2/StatesAndVariables.dart';
 
 import '../main.dart';
 
-class UsersScreen extends StatefulWidget {
-  const UsersScreen({Key? key}) : super(key: key);
+class SchedulesScreen extends StatefulWidget {
+  const SchedulesScreen({Key? key}) : super(key: key);
 
 
   @override
-  State<UsersScreen> createState() => _UsersScreenState();
+  State<SchedulesScreen> createState() => _SchedulesScreenState();
 }
 
-class _UsersScreenState extends State<UsersScreen> {
+class _SchedulesScreenState extends State<SchedulesScreen> {
 
   @override
 
@@ -34,11 +34,11 @@ class _UsersScreenState extends State<UsersScreen> {
             },
           )
         ],
-        title: const Text("Пользователи"),
+        title: const Text("Графики работы"),
       ),
       body: Column(
         children: [
-          Widgets.usersScreen(Variables.clickedDay,context),
+          Widgets.schedulesScreen(context),
         ],
       ),
     );

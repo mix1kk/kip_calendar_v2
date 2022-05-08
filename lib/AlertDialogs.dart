@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:intl/intl.dart';
 
 import 'StatesAndVariables.dart';
-import 'firestore.dart';
+import 'Database.dart';
 
 
 class AlertDialogs {
@@ -44,7 +44,7 @@ class AlertDialogs {
                     TextButton(
                       child: const Text("Удалить"),
                       onPressed: () {
-              Users.deleteUser(Variables.currentUser.name);
+              Schedules.deleteSchedule(Variables.currentSchedule.name);
               Navigator.pushNamed(context, '/users');
                       },
                     ),
@@ -123,7 +123,7 @@ class AlertDialogs {
 
   static selectAlertDialogUserScreen(BuildContext context,index) {
     bool isVisible = false;
-    String password = '';
+  //  String password = '';
     String alertDialogTitle = 'Введите пароль';
     final TextEditingController passwordController = TextEditingController();
     showDialog(
@@ -160,7 +160,7 @@ class AlertDialogs {
                     ),
                     TextButton(
                       child: const Text("Выбрать"),
-                      onPressed: () {
+                      onPressed: () async{
                         if (passwordController.text == Variables.currentUser.password) {
                           Variables.selectedUser = Variables.currentUser;
                           States.isNamePressed[index] =
@@ -169,6 +169,7 @@ class AlertDialogs {
                           Variables.currentUser.isExpanded =
                           !Variables.currentUser.isExpanded;
                           Users.addUser(Variables.currentUser);
+                          Variables.currentSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
                           //сделано для обновления экрана
                           Navigator.of(context).pop();
                         }
@@ -177,6 +178,39 @@ class AlertDialogs {
                           passwordController.text='';
                           setState((){});
                         }
+                      },
+                    ),
+                  ],
+                );
+            },
+          );
+        });
+  }
+
+  static deleteAlertDialogSchedulesScreen(BuildContext context,index) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return
+                AlertDialog(
+                  title: const Text('Удалить график?'),
+                  // content: Text(),
+                  actions: [
+                    TextButton(
+                      child: const Text("Отмена"),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: const Text("Удалить"),
+                      onPressed: () async{
+                        States.isSchedulePressed = List.filled(100, false);
+                        await Schedules.deleteSchedule(Variables.currentSchedule.name);
+                        Variables.currentSchedule.name='0';
+                        Navigator.pushNamedAndRemoveUntil(context, '/schedules',(route) => false);
                       },
                     ),
                   ],

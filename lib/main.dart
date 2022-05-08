@@ -3,7 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kip_calendar_v2/Users/Users.dart';
-import 'widgets.dart';
+import 'Schedules/Schedules.dart';
+import 'Widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'StatesAndVariables.dart';
@@ -22,19 +23,60 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
- // static Model model = Model();
+
+  static void menuNavigationDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text("Выбор меню"),
+            children: <Widget>[
+              SimpleDialogOption(
+                child: Text("На главную"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushNamed(
+                    context,
+                    '/calendar',
+                  );
+                },
+              ),
+              SimpleDialogOption(
+                child: Text("Пользователи"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushNamed(
+                    context,
+                    '/users',
+                  );
+                },
+              ),
+              SimpleDialogOption(
+                child: Text("Графики"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushNamed(
+                    context,
+                    '/schedules',
+                  );
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       initialRoute: '/calendar',
       routes: {
-
+        '/schedules': (context) =>  SchedulesScreen(),
         '/users': (context) => UsersScreen(),
         '/calendar': (context) => CalendarScreen(),
         '/calendarDay': (context) => DayCalendarScreen(),
       },
-           theme: new ThemeData(
+           theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
      // home: CalendarScreen(),
@@ -61,7 +103,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     //   setState(() {});
     // }
     return RefreshIndicator(
-      onRefresh: Widgets.pullRefresh,
+      onRefresh:() {return Widgets.pullRefresh(context);},
       child: Scaffold(
         appBar: AppBar(
           actions: [
@@ -69,15 +111,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
             onPressed: (){
               States.showDayTypes=!States.showDayTypes;
               setState(() {
-
               });
             },),
             IconButton(icon: const Icon(Icons.list),
               onPressed: (){
-                Navigator.pushNamed(context, '/users');
-                setState(() {
-
-                });
+                MyApp.menuNavigationDialog(context);
               },)
           ],
           title:
@@ -106,7 +144,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Widgets.rowCalendarMonthScreen(
                 //Заголовок на основном экране с названиями дней недели
                 'Неделя',
-                ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],context),
+                ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],context,'main'),
             Widgets.mainBodyCalendarMonthScreen(DateTime(2022),context),
           ],
         ),
@@ -114,3 +152,5 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 }
+//todo: сделать экран графиков
+// todo: баг: смотри начало следующего года, скрывается последняя неделя предыдущего, при сворачивании прошедших месяцев скрываются месяцы для каждого года

@@ -45,110 +45,90 @@ import 'StatesAndVariables.dart';
 //
 
 //
-// class Schedule {
-//   final int number;
-//   final String name;
-//   final List<int> schedule;
-//   List<String> allEvents = [];
-//
-//   Schedule(this.number, this.name, this.schedule);
-//
-//   static addSchedule(String scheduleName, List<int> scheduleList) async {
-//     await FirebaseFirestore.instance
-//         .collection('schedules')
-//         .doc(scheduleName)
-//         .get()
-//         .then((DocumentSnapshot documentSnapshot) {
-//       FirebaseFirestore.instance.collection('schedules').doc(scheduleName).set({
-//         'name': scheduleName,
-//         'schedule': scheduleList,
-//       });
-//     });
-//     // );
-//   }
-//
-//   static getSchedule(String scheduleName) async {
-//     //чтение из базы данных
-//     List schedule = [];
-//     await FirebaseFirestore.instance
-//         .collection('schedules')
-//         .doc(scheduleName)
-//         .get()
-//         .then((DocumentSnapshot documentSnapshot) {
-//       schedule = documentSnapshot.get('schedule');
-//     });
-//     return schedule.map((s) => s as int).toList();
-//   }
-//
-//   static deleteSchedule(String scheduleName) async {
-//     //чтение из базы данных
-//     await FirebaseFirestore.instance
-//         .collection('schedules')
-//         .doc(scheduleName)
-//         .delete();
-//     allSchedulesList = await Schedule.getAllSchedulesNames();
-//     scheduleName = '0';
-//     // _selectedSchedule=scheduleName;
-//   }
-//
-//   static getScheduleName(int scheduleNumber) async {
-//     //чтение из базы данных
-//     String scheduleName = '';
-//     await FirebaseFirestore.instance
-//         .collection('schedules')
-//         .doc('$scheduleNumber')
-//         .get()
-//         .then((DocumentSnapshot documentSnapshot) {
-//       scheduleName = documentSnapshot.get('name').toString();
-//     });
-//     return scheduleName;
-//   }
-//
-//   static getAllSchedulesNames() async {
-//     //чтение из базы данных
-//     List<String> scheduleName = [];
-//     await FirebaseFirestore.instance
-//         .collection('schedules')
-//         .get()
-//         .then((QuerySnapshot querySnapshot) {
-//       querySnapshot.docs.forEach((doc) {
-//         scheduleName.add(doc.get('name'));
-//       });
-//     });
-//     return scheduleName;
-//   }
-//
-//   static getWorkingDay(DateTime currentDay) {
-//     List<int> schedule = scheduleList;
-//     Duration difference = currentDay.difference(initialDate);
-//     return schedule[difference.inDays %
-//         56]; // 26 - выходной, 1 - рабочий в день, 2 - рабочий в ночь
-//   }
-// }
+class Schedules {
+   String name;
+   List<int> schedule;
+   bool isExpanded;
 
+  Schedules( this.name, this.schedule,this.isExpanded);
 
-// final String name = 'user';
-// final String password = '';
-// final String tableNumber = '001';
-// final String position = 'position';
-// final DateTime dateOfBirth = DateTime(2022);
-// final DateTime dateOfEmployment = DateTime(2022);
-// final String scheduleName = '0';
-// final String phoneNumber = '8 987 654 32 10';
-// final String role = 'user';
-// final bool isExpanded = false;
-// Users initialUser = Users(
-//     'user',
-//     '0',
-//     '001',
-//     'position',
-//     DateTime(2022),
-//     DateTime(2022),
-//     '0',
-//     'КИПиА',
-//     '8 987 654 32 10',
-//     'user',
-//     false);
+  static addSchedule(String scheduleName, List<int> scheduleList,bool isExpanded) async {
+    await FirebaseFirestore.instance
+        .collection('schedules')
+        .doc(scheduleName)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      FirebaseFirestore.instance.collection('schedules').doc(scheduleName).set({
+        'name': scheduleName,
+        'schedule': scheduleList,
+        'isExpanded': isExpanded,
+      });
+    });
+    // );
+  }
+
+  static getSchedule(String scheduleName) async {
+    //чтение из базы данных
+    Schedules schedule = Variables.currentSchedule;
+    await FirebaseFirestore.instance
+        .collection('schedules')
+        .doc(scheduleName)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+       //List <dynamic> list = documentSnapshot.get('schedule');
+      schedule = Schedules(
+          documentSnapshot.get('name'),
+          //list.cast<int>(),
+           documentSnapshot.get('schedule').cast<int>(),
+          documentSnapshot.get('isExpanded')
+      );
+    });
+    return schedule;
+  }
+
+  static deleteSchedule(String scheduleName) async {
+    //чтение из базы данных
+    await FirebaseFirestore.instance
+        .collection('schedules')
+        .doc(scheduleName)
+        .delete();
+
+  }
+
+  // static getScheduleName(int scheduleNumber) async {
+  //   //чтение из базы данных
+  //   String scheduleName = '';
+  //   await FirebaseFirestore.instance
+  //       .collection('schedules')
+  //       .doc('$scheduleNumber')
+  //       .get()
+  //       .then((DocumentSnapshot documentSnapshot) {
+  //     scheduleName = documentSnapshot.get('name').toString();
+  //   });
+  //   return scheduleName;
+  // }
+  //
+  // static getAllSchedulesNames() async {
+  //   //чтение из базы данных
+  //   List<String> scheduleName = [];
+  //   await FirebaseFirestore.instance
+  //       .collection('schedules')
+  //       .get()
+  //       .then((QuerySnapshot querySnapshot) {
+  //     querySnapshot.docs.forEach((doc) {
+  //       scheduleName.add(doc.get('name'));
+  //     });
+  //   });
+  //   return scheduleName;
+  // }
+
+  static getWorkingDay(DateTime currentDay,List<int> schedule) {
+    Duration difference = currentDay.difference(DateTime(2022).subtract(const Duration(days :5)));
+    return schedule[difference.inDays %
+        56]; // 26 - выходной, 1 - рабочий в день, 2 - рабочий в ночь
+  }
+}
+
 
 class Users {
    String name;

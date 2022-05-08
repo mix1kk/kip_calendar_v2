@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:kip_calendar_v2/alertDialogs.dart';
+import 'package:kip_calendar_v2/AlertDialogs.dart';
 import 'StatesAndVariables.dart';
-import 'firestore.dart';
-import 'styles.dart';
+import 'Database.dart';
+import 'Styles.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 final TextEditingController dateOfBirthController = TextEditingController();
 final TextEditingController dateOfEmploymentController =
     TextEditingController();
+final TextEditingController scheduleNameController = TextEditingController();
 
 double rowHeight = 40.0; // Высота строк
 double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
@@ -37,10 +38,10 @@ class Widgets {
     return week;
   }
 
-  static Future<void> pullRefresh() async {
+  static Future<void> pullRefresh(context) async {
     // await Future.delayed(const Duration(seconds: 1));
     States.isPulled = !States.isPulled;
-    // Navigator.pushNamed(context, '/calendarDay');
+    Navigator.pushNamed(context, '/calendar');
   }
 
   static Widget mainBodyCalendarMonthScreen(DateTime day, context) {
@@ -49,7 +50,9 @@ class Widgets {
       // child: RefreshIndicator(
       //   onRefresh: pullRefresh,
       child: ListView.builder(itemBuilder: (context, index) {
-        DateTime lastDayOfWeek = day.add(Duration(days: 7 - day.weekday));
+        //скрытие прошедших месяцев
+        DateTime lastDayOfWeek = day.add(Duration(
+            days: 7 - day.weekday)); //вычисление даты последнего дня в неделе
         DateTime currentDay = lastDayOfWeek.add(Duration(days: index * 7));
         if (currentDay.day < 7) {
           States.isLastWeek = true;
@@ -64,6 +67,7 @@ class Widgets {
             rowHeight = 40.0;
           }
         }
+        //скрытие прошедших месяцев
         return Column(children: [
           SizedBox(
             //Для отрисовки последней недели предыдущего месяца с затемненными днями
@@ -71,7 +75,8 @@ class Widgets {
             child: rowCalendarMonthScreen(
                 getNumberOfWeek(currentDay).toString(),
                 getWeekDays(currentDay),
-                context),
+                context,
+                'main'),
           ),
           Container(
               decoration: BoxDecoration(
@@ -88,7 +93,8 @@ class Widgets {
             child: rowCalendarMonthScreen(
                 getNumberOfWeek(currentDay).toString(),
                 getWeekDays(currentDay),
-                context),
+                context,
+                'main'),
             //построение основной таблицы строка за строкой
           ),
         ]);
@@ -101,7 +107,10 @@ class Widgets {
       //Строка на экране CalendarMonthScreen
       String nameFirstColumn,
       List<dynamic> week,
-      context) {
+      context,
+      String
+          callPlace) //String callPlace - указать место, откуда произошел вызов функции для разного отображения в разных местах
+  {
     return SizedBox(
       height: rowHeight + 5,
       child: Row(children: [
@@ -116,13 +125,14 @@ class Widgets {
           ),
         ),
         Row(
-          children: weekCalendarMonthScreen(week, context),
+          children: weekCalendarMonthScreen(week, context, callPlace),
         ),
       ]),
     );
   }
 
-  static List<Widget> weekCalendarMonthScreen(List<dynamic> week, context) {
+  static List<Widget> weekCalendarMonthScreen(
+      List<dynamic> week, context, String callPlace) {
     //7 дней недели в строке на экране CalendarMonthScreen
     List<Widget> widgets = [];
     var style =
@@ -131,28 +141,20 @@ class Widgets {
       if (week[0] is! String) {
         if (States.isLastWeek) {
           //проверка является ли текущая неделя последней в месяце
-          if (week[day].month != week[0].month) {
-            //отрисовка дней следующего месяца в последней неделе текущего месяца
+          if (week[day].month != week[0].month && callPlace == 'main') {
+            //отрисовка затемненных дней следующего месяца в последней неделе текущего месяца, если вызвано с главного экрана
             style = ButtonStyles.fadedDayButtonStyle;
           } else {
-            ((week[day].year == DateTime.now().year) &&
-                    (week[day].month == DateTime.now().month) &&
-                    (week[day].day == DateTime.now().day))
-                ? //проверка на текущий день и окрашивание его другим цветом
-                style = ButtonStyles.currentDayButtonStyle
-                : style = ButtonStyles.simpleDayButtonStyle;
+            style = ButtonStyles.dayStyle(week[day],
+                callPlace); // раскрашивание дней в соответствии с графиком
           }
         } else {
-          if (week[day].month != week[6].month) {
-            //отрисовка дней предыдущего месяца в первой неделе текущего месяца
+          if (week[day].month != week[6].month && callPlace == 'main') {
+            //отрисовка затемненных дней предыдущего месяца в первой неделе текущего месяца, если вызвано с главного экрана
             style = ButtonStyles.fadedDayButtonStyle;
           } else {
-            ((week[day].year == DateTime.now().year) &&
-                    (week[day].month == DateTime.now().month) &&
-                    (week[day].day == DateTime.now().day))
-                ? //проверка на текущий день и окрашивание его другим цветом
-                style = ButtonStyles.currentDayButtonStyle
-                : style = ButtonStyles.simpleDayButtonStyle;
+            style = ButtonStyles.dayStyle(week[day],
+                callPlace); // раскрашивание дней в соответствии с графиком
           }
         }
       }
@@ -160,9 +162,10 @@ class Widgets {
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 3.0),
           width: (MediaQuery.of(context).size.width - firstColumnWidth) / 7,
-          // (MediaQuery.of(context).size.width - firstItemRowWidth) / 7,
           height: rowHeight,
-          child: dayCalendarMonthScreen(week[day], style, context),
+          child: (callPlace == 'main')
+              ? dayCalendarMonthScreen(week[day], style, context)
+              : dayCalendarScheduleScreen(week[day], style, context),
         ),
       );
     }
@@ -171,6 +174,20 @@ class Widgets {
   }
 
   static Widget dayCalendarMonthScreen(dynamic day, style, context) {
+    String dayNumberByTK = '';
+    String dayLetterByTK = '';
+    if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
+      dayNumberByTK =
+          Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)
+              .toString(); //Номер дня по ТК
+      dayLetterByTK = Variables.numbersForWorkingDays[Schedules.getWorkingDay(
+                  day, Variables.currentSchedule.schedule)] ==
+              null
+          ? ''
+          : Variables.numbersForWorkingDays[Schedules.getWorkingDay(
+              day, Variables.currentSchedule.schedule)]!;
+//Обозначение дня по ТК
+    }
     return ElevatedButton(
       style: (day
               is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
@@ -193,23 +210,25 @@ class Widgets {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const Text(
-                  '02',
-                  style: TextStyle(fontSize: 9),
+                Text(
+                  dayNumberByTK, //Номер дня по ТК
+                  style: const TextStyle(fontSize: 9),
                 ),
-                const Text(
-                  'B2',
-                  style: TextStyle(fontSize: 9),
+                Text(
+                  dayLetterByTK, //Обозначение дня по ТК
+                  style: const TextStyle(fontSize: 9),
                 ),
               ],
             ),
           ),
         ],
       ),
-      //Выбор цвета кнопки в зависимости от наличия событий в эту дату
+      //todo Выбор цвета кнопки в зависимости от наличия событий в эту дату
       onPressed: () {
-        Navigator.pushNamed(context, '/calendarDay');
-        //считывание всех ивентов для данного пользователя в кликнутую дату
+        if (day is! String) {
+          Navigator.pushNamed(context, '/calendarDay');
+        }
+        //todo считывание всех ивентов для данного пользователя в кликнутую дату
         //        dialogOnMainScreen();
       },
     );
@@ -394,6 +413,7 @@ class Widgets {
                     DateFormat.yMd().format(Variables.currentUser.dateOfBirth);
                 dateOfEmploymentController.text = DateFormat.yMd()
                     .format(Variables.currentUser.dateOfEmployment);
+                scheduleNameController.text = data['scheduleName'];
                 Variables.setPrefs(data['name']);
 
                 if (States.isNamePressed[index]) {
@@ -506,14 +526,21 @@ class Widgets {
             //     .toString(),
           ),
           TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
+            readOnly: true,
+            controller: scheduleNameController,
             decoration: const InputDecoration(
               labelText: 'График',
             ),
-            initialValue: data['scheduleName'],
-            onChanged: (value) {
-              Variables.currentUser.scheduleName = value;
+            //initialValue: data['scheduleName'],
+            //  initialValue: Variables.currentUser.scheduleName,
+            onTap: () {
+              if (Variables.selectedUser.role == 'admin') {
+                Navigator.pushNamed(context, '/schedules');
+              }
             },
+            // onChanged: (value) {
+            //   Variables.currentUser.scheduleName = value;
+            // },
           ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',
@@ -527,7 +554,8 @@ class Widgets {
           ),
           TextFormField(
             keyboardType: TextInputType.phone,
-            readOnly: !((Variables.selectedUser.role == 'admin')|(Variables.selectedUser.name==Variables.currentUser.name)),
+            readOnly: !((Variables.selectedUser.role == 'admin') |
+                (Variables.selectedUser.name == Variables.currentUser.name)),
             decoration: const InputDecoration(
               labelText: 'Номер телефона',
             ),
@@ -554,7 +582,6 @@ class Widgets {
                   onPressed: () {
                     if (Variables.selectedUser.role == 'admin') {
                       AlertDialogs.deleteAlertDialogUserScreen(context, index);
-
                     }
                   },
                   icon: const Icon(Icons.delete),
@@ -562,15 +589,31 @@ class Widgets {
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
+                    if (Variables.selectedUser.role == 'admin') {
+                      //если админ, то сохраняем все поля пользователя, если не админ, то только номер телефона
                       Users.addUser(Variables.currentUser);
+                    } else {
+                      Users.addUser(Users(
+                        data['name'],
+                        data['password'],
+                        data['tableNumber'],
+                        data['position'],
+                        data['dateOfBirth'].toDate(),
+                        data['dateOfEmployment'].toDate(),
+                        data['scheduleName'],
+                        data['unit'],
+                        Variables.currentUser.phoneNumber,
+                        data['role'],
+                        !data['isExpanded'],
+                      ));
+                    }
                   },
                   icon: const Icon(Icons.save),
                   label: const Text('Сохранить   ')),
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
-                  onPressed: () {
+                  onPressed: () async {
                     AlertDialogs.selectAlertDialogUserScreen(context, index);
-                    // AlertDialogs.selectAlertDialogUserScreen(context,index);
                   },
                   icon: const Icon(Icons.adjust),
                   label: const Text('Выбрать   ')),
@@ -579,5 +622,230 @@ class Widgets {
         ],
       ),
     );
+  }
+
+  static Widget schedulesScreen(context) {
+    final Stream<QuerySnapshot> _schedulesStream =
+        FirebaseFirestore.instance.collection('schedules').snapshots();
+    //основная таблица  на экране UsersScreen
+    return Expanded(
+      // child: RefreshIndicator(
+      //   onRefresh: pullRefresh,
+      child: StreamBuilder<QuerySnapshot>(
+          stream: _schedulesStream,
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            int number = 0;
+            if (snapshot.hasError) {
+              return const Text('Что-то пошло не так');
+            }
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+              //const Text("Loading");
+            }
+            return ListView(
+              children: snapshot.data!.docs.map((DocumentSnapshot document) {
+                number++;
+                Map<String, dynamic> data =
+                    document.data()! as Map<String, dynamic>;
+                return Column(children: [
+                  SizedBox(
+                    height: rowHeight * 2,
+                    child: schedulesMainScreenName(context, number, data),
+                    //заголовок пользователя в списке пользователей
+                  ),
+                  SizedBox(
+                    height:
+                        States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
+                    child: schedulesMainScreenData(context, number, data),
+                    //данные пользователя в списке пользователей
+                  ),
+                ]);
+              }).toList(),
+            );
+          }),
+    );
+  }
+
+  static Widget schedulesMainScreenName(context, int index, data) {
+    return Row(
+      children: [
+        Container(
+            padding: const EdgeInsets.all(2.0),
+            height: rowHeight * 2,
+            width: firstColumnWidth,
+            child: ElevatedButton(
+              style: ButtonStyles.headerButtonStyle,
+              onPressed: () {},
+              child: Text('$index'),
+            )),
+        Container(
+            padding: const EdgeInsets.all(2.0),
+            height: rowHeight * 2,
+            width: MediaQuery.of(context).size.width - firstColumnWidth,
+            child: ElevatedButton(
+              style: (Variables.currentSchedule.name == data['name'])
+                  ? ButtonStyles.headerButtonStyle
+                  : ButtonStyles.usersListButtonStyle,
+              onPressed: () {
+                Variables.currentSchedule = Schedules(data['name'],
+                    data['schedule'].cast<int>(), !data['isExpanded']);
+
+                // Variables.setPrefs(data['name']);
+
+                if (States.isSchedulePressed[index]) {
+                  States.isSchedulePressed = List.filled(100, false);
+                } else {
+                  States.isSchedulePressed = List.filled(100, false);
+                  States.isSchedulePressed[index] =
+                      !States.isSchedulePressed[index];
+                }
+                Schedules.addSchedule(
+                    //сделано для обновления экрана
+                    Variables.currentSchedule.name,
+                    Variables.currentSchedule.schedule,
+                    Variables.currentSchedule.isExpanded);
+              },
+              child: ListTile(
+                title: Text(data['name']),
+              ),
+            )),
+      ],
+    );
+  }
+
+  static Widget schedulesMainScreenData(
+      context, index, Map<String, dynamic> data) {
+    //полные данные пользователей
+    return Container(
+      padding: const EdgeInsets.all(0.0),
+      // height: States.isNamePressed[number] ? rowHeight * 15 : 0.0,
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(
+              labelText: 'Название графика',
+            ),
+            readOnly: Variables.selectedUser.role != 'admin',
+            initialValue: data['name'],
+            onChanged: (value) {
+              Variables.currentSchedule.name = value;
+            },
+          ),
+
+          Container(
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                children: schedulesMainScreenDataSample(
+                    context, Variables.currentSchedule.schedule),
+              )),
+          //todo schedule
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                  style: ButtonStyles.headerButtonStyle,
+                  onPressed: () {
+                    if (Variables.selectedUser.role == 'admin') {
+                      AlertDialogs.deleteAlertDialogSchedulesScreen(
+                          context, index);
+                    }
+                  },
+                  icon: const Icon(Icons.delete),
+                  label: const Text('Удалить   ')),
+              ElevatedButton.icon(
+                  style: ButtonStyles.headerButtonStyle,
+                  onPressed: () async {
+                    if (Variables.selectedUser.role == 'admin') {
+                      await Schedules.addSchedule(
+                          Variables.currentSchedule.name,
+                          Variables.currentSchedule.schedule,
+                          !Variables.currentSchedule.isExpanded);
+                      Variables.currentSchedule.name = '0';
+                      States.isSchedulePressed = List.filled(100, false);
+                      Navigator.pushNamed(context, '/schedules');
+                    }
+                  },
+                  icon: const Icon(Icons.save),
+                  label: const Text('Сохранить   ')),
+              ElevatedButton.icon(
+                  style: ButtonStyles.headerButtonStyle,
+                  onPressed: () {
+                    Variables.currentUser.scheduleName =
+                        Variables.currentSchedule.name;
+                    scheduleNameController.text =
+                        Variables.currentSchedule.name;
+                    States.isSchedulePressed = List.filled(100, false);
+                    Navigator.pushNamed(context, '/users');
+                  },
+                  icon: const Icon(Icons.adjust),
+                  label: const Text('Выбрать   ')),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  static List<Widget> schedulesMainScreenDataSample(
+      context, List<int> schedule) {
+    //отрисовка 8 недель на экране графиков для отображения графика
+    List<Widget> weekWidgets = [];
+    DateTime currentDay = DateTime.now();
+    for (int week = 0; week < 8; week++) {
+      currentDay = currentDay.add(Duration(days: 7 * week));
+      weekWidgets.add(
+        rowCalendarMonthScreen(getNumberOfWeek(currentDay).toString(),
+            getWeekDays(currentDay), context, 'schedules'),
+      );
+      currentDay = DateTime.now();
+    }
+    return weekWidgets;
+  }
+
+  static Widget dayCalendarScheduleScreen(day, style, context) {
+    return StatefulBuilder(builder: (context, setState) {
+      return ElevatedButton(
+          style: style,
+          child: Column(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    DateFormat.d().format(day),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 13,
+                child: Text(
+                  DateFormat.MMM().format(day),
+                  style: const TextStyle(fontSize: 9),
+                ),
+              ),
+            ],
+          ),
+          onPressed: () {
+            int number = day
+                    .difference(
+                        DateTime(2022).subtract(const Duration(days: 5)))
+                    .inDays %
+                56; //какой по счету день из 56 занимает текущий обрабатываемый
+            if (Variables.currentSchedule.schedule[number] == 1) {
+              Variables.currentSchedule.schedule[number] = 2;
+            } else if (Variables.currentSchedule.schedule[number] == 2) {
+              Variables.currentSchedule.schedule[number] = 26;
+            } else if (Variables.currentSchedule.schedule[number] == 26) {
+              Variables.currentSchedule.schedule[number] = 1;
+            }
+            style = ButtonStyles.dayStyle(day, 'schedules');
+            setState(() {});
+          }
+          //        dialogOnMainScreen();
+          );
+    });
   }
 }

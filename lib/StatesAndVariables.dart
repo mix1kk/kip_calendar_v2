@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'firestore.dart';
+import 'Database.dart';
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 // class CurrentUser{
 //  static String selectedUserName = 'user';
@@ -16,27 +16,29 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 // }
 
  class Variables{
+
+  static Map<int,String> numbersForWorkingDays=
+  {1: 'Я',
+   2: 'Н',
+   6: 'К',
+   9: 'ОТ',
+   10: 'ОД',
+   17:'ОЗ',
+   19:'Б',
+   26:'В',
+  };
+  static Schedules currentSchedule=Schedules('0',List.filled(56, 26),false);
   static void setPrefs (name)async{
    SharedPreferences prefs = await _prefs;
    await prefs.setString('name',name);
   }
 
-  static Future <void> getPrefs ()async{
+  static Future <void> getPrefs ()async{//считывание сохраненных данных(имя пользователя, график)
    SharedPreferences prefs = await _prefs;
       Variables.selectedUser = (prefs.getString('name')==null)?Variables.currentUser:await Users.getUserByName(prefs.getString('name')!);
+      currentSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
     }
-  // Users initialUser = Users(
-  //     'user',
-  //     '0',
-  //     '001',
-  //     'position',
-  //     DateTime(2022),
-  //     DateTime(2022),
-  //     '0',
-  //     'КИПиА',
-  //     '8 987 654 32 10',
-  //     'user',
-  //     false);
+
  static Users selectedUser = Users(//выбранный главным пользователь
       'user',
       '0',
@@ -80,7 +82,7 @@ class States{
  static bool isPulled = false;
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
-
+ static List<bool> isSchedulePressed=List.filled(100, false);
 }
 class Model
 {
