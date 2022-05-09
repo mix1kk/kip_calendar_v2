@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kip_calendar_v2/Users/Users.dart';
+import 'Events/Events.dart';
 import 'Schedules/Schedules.dart';
 import 'Widgets.dart';
 import 'package:intl/intl.dart';
@@ -61,6 +62,16 @@ class MyApp extends StatelessWidget {
                   );
                 },
               ),
+              SimpleDialogOption(
+                child: Text("События"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pushNamed(
+                    context,
+                    '/events',
+                  );
+                },
+              ),
             ],
           );
         });
@@ -71,6 +82,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/calendar',
       routes: {
+        '/events': (context) =>  EventsScreen(),
         '/schedules': (context) =>  SchedulesScreen(),
         '/users': (context) => UsersScreen(),
         '/calendar': (context) => CalendarScreen(),
@@ -119,8 +131,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
               },)
           ],
           title:
-
-
           Column(
             children: [
               const Align(
@@ -152,5 +162,5 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 }
-//todo: сделать экран графиков
 // todo: баг: смотри начало следующего года, скрывается последняя неделя предыдущего, при сворачивании прошедших месяцев скрываются месяцы для каждого года
+//todo : добавить сортировку пользователей по параметрам

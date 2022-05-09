@@ -13,6 +13,7 @@ final TextEditingController dateOfEmploymentController =
     TextEditingController();
 final TextEditingController scheduleNameController = TextEditingController();
 
+
 double rowHeight = 40.0; // Высота строк
 double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
 
@@ -848,4 +849,51 @@ class Widgets {
           );
     });
   }
+
+
+  // static Widget eventsScreen(context) {
+  //   final Stream<QuerySnapshot> _eventsStream =
+  //   FirebaseFirestore.instance.collection('users').docs.collection('events').snapshots();
+  //   //основная таблица  на экране UsersScreen
+  //   return Expanded(
+  //     // child: RefreshIndicator(
+  //     //   onRefresh: pullRefresh,
+  //     child: StreamBuilder<QuerySnapshot>(
+  //         stream: _eventsStream,
+  //         builder:
+  //             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+  //           int number = 0;
+  //           if (snapshot.hasError) {
+  //             return const Text('Что-то пошло не так');
+  //           }
+  //
+  //           if (snapshot.connectionState == ConnectionState.waiting) {
+  //             return const Center(child: CircularProgressIndicator());
+  //             //const Text("Loading");
+  //           }
+  //           return ListView(
+  //             children: snapshot.data!.docs.map((DocumentSnapshot document) {
+  //               number++;
+  //               Map<String, dynamic> data =
+  //               document.data()! as Map<String, dynamic>;
+  //               return Column(children: [
+  //                 SizedBox(
+  //                   height: rowHeight * 2,
+  //                   child: schedulesMainScreenName(context, number, data),
+  //                   //заголовок пользователя в списке пользователей
+  //                 ),
+  //                 SizedBox(
+  //                   height:
+  //                   States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
+  //                   child: schedulesMainScreenData(context, number, data),
+  //                   //данные пользователя в списке пользователей
+  //                 ),
+  //               ]);
+  //             }).toList(),
+  //           );
+  //         }),
+  //   );
+  // }
+
+
 }
