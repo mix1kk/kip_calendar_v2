@@ -5,17 +5,13 @@ import 'StatesAndVariables.dart';
 import 'Database.dart';
 import 'Styles.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-// import 'package:firebase_core/firebase_core.dart';
+
 final TextEditingController dateOfBirthController = TextEditingController();
 final TextEditingController dateOfEmploymentController =
     TextEditingController();
 final TextEditingController scheduleNameController = TextEditingController();
 
-
-double rowHeight = 40.0; // Высота строк
-double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
 
 class Widgets {
   static getNumberOfWeek(DateTime day) {
@@ -60,19 +56,19 @@ class Widgets {
         }
 
         if (States.isPulled) {
-          rowHeight = 40.0;
+          Variables.rowHeight = 40.0;
         } else {
           if ((currentDay.month) < DateTime.now().month) {
-            rowHeight = 0.0;
+            Variables.rowHeight = 0.0;
           } else {
-            rowHeight = 40.0;
+            Variables.rowHeight = 40.0;
           }
         }
         //скрытие прошедших месяцев
         return Column(children: [
           SizedBox(
             //Для отрисовки последней недели предыдущего месяца с затемненными днями
-            height: (currentDay.day < 7) ? rowHeight : 0.0,
+            height: (currentDay.day < 7) ? Variables.rowHeight : 0.0,
             child: rowCalendarMonthScreen(
                 getNumberOfWeek(currentDay).toString(),
                 getWeekDays(currentDay),
@@ -90,7 +86,7 @@ class Widgets {
                     Text(DateFormat.yMMMM().format(currentDay).toUpperCase()),
               )),
           SizedBox(
-            height: rowHeight,
+            height: Variables.rowHeight,
             child: rowCalendarMonthScreen(
                 getNumberOfWeek(currentDay).toString(),
                 getWeekDays(currentDay),
@@ -113,12 +109,12 @@ class Widgets {
           callPlace) //String callPlace - указать место, откуда произошел вызов функции для разного отображения в разных местах
   {
     return SizedBox(
-      height: rowHeight + 5,
+      height: Variables.rowHeight + 5,
       child: Row(children: [
         Container(
           padding: const EdgeInsets.all(3.0),
-          width: firstColumnWidth,
-          height: rowHeight,
+          width: Variables.firstColumnWidth,
+          height: Variables.rowHeight,
           child: ElevatedButton(
             style: ButtonStyles.headerButtonStyle,
             onPressed: () {},
@@ -162,8 +158,8 @@ class Widgets {
       widgets.add(
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 3.0),
-          width: (MediaQuery.of(context).size.width - firstColumnWidth) / 7,
-          height: rowHeight,
+          width: (MediaQuery.of(context).size.width - Variables.firstColumnWidth) / 7,
+          height: Variables.rowHeight,
           child: (callPlace == 'main')
               ? dayCalendarMonthScreen(week[day], style, context)
               : dayCalendarScheduleScreen(week[day], style, context),
@@ -245,7 +241,7 @@ class Widgets {
           itemBuilder: (context, index) {
             return Column(children: [
               SizedBox(
-                height: rowHeight,
+                height: Variables.rowHeight,
                 child:
                     rowCalendarDayScreen(Variables.eventsDay, context, index),
                 //построение основной таблицы строка за строкой
@@ -274,12 +270,12 @@ class Widgets {
             border: Border.all(),
           ),
           padding: const EdgeInsets.all(0.0),
-          height: rowHeight,
+          height: Variables.rowHeight,
           width: MediaQuery.of(context).size.width / 2,
           child: Row(children: [
             Container(
               padding: const EdgeInsets.all(3.0),
-              width: firstColumnWidth,
+              width: Variables.firstColumnWidth,
               child: ElevatedButton(
                 style: ButtonStyles.headerButtonStyle,
                 onPressed: () {},
@@ -288,7 +284,7 @@ class Widgets {
             ),
             SizedBox(
               width:
-                  MediaQuery.of(context).size.width / 2 - firstColumnWidth - 2,
+                  MediaQuery.of(context).size.width / 2 - Variables.firstColumnWidth - 2,
               child: ElevatedButton(
                 style: ButtonStyles.dayEventsButtonStyle,
                 onPressed: () {
@@ -304,12 +300,12 @@ class Widgets {
             border: Border.all(),
           ),
           padding: const EdgeInsets.all(0.0),
-          height: rowHeight,
+          height: Variables.rowHeight,
           width: MediaQuery.of(context).size.width / 2,
           child: Row(children: [
             Container(
               padding: const EdgeInsets.all(3.0),
-              width: firstColumnWidth,
+              width: Variables.firstColumnWidth,
               child: ElevatedButton(
                 style: ButtonStyles.headerButtonStyle,
                 onPressed: () {},
@@ -318,7 +314,7 @@ class Widgets {
             ),
             SizedBox(
               width:
-                  MediaQuery.of(context).size.width / 2 - firstColumnWidth - 2,
+                  MediaQuery.of(context).size.width / 2 - Variables.firstColumnWidth - 2,
               child: ElevatedButton(
                 style: ButtonStyles.dayEventsButtonStyle,
                 onPressed: () {
@@ -360,12 +356,12 @@ class Widgets {
                     document.data()! as Map<String, dynamic>;
                 return Column(children: [
                   SizedBox(
-                    height: rowHeight * 2,
+                    height: Variables.rowHeight * 2,
                     child: usersMainScreenName(context, number, data),
                     //заголовок пользователя в списке пользователей
                   ),
                   SizedBox(
-                    height: States.isNamePressed[number] ? rowHeight * 17 : 0.0,
+                    height: States.isNamePressed[number] ? Variables.rowHeight * 17 : 0.0,
                     child: usersMainScreenData(context, number, data),
                     //данные пользователя в списке пользователей
                   ),
@@ -381,8 +377,8 @@ class Widgets {
       children: [
         Container(
             padding: const EdgeInsets.all(2.0),
-            height: rowHeight * 2,
-            width: firstColumnWidth,
+            height: Variables.rowHeight * 2,
+            width: Variables.firstColumnWidth,
             child: ElevatedButton(
               style: ButtonStyles.headerButtonStyle,
               onPressed: () {},
@@ -390,8 +386,8 @@ class Widgets {
             )),
         Container(
             padding: const EdgeInsets.all(2.0),
-            height: rowHeight * 2,
-            width: MediaQuery.of(context).size.width - firstColumnWidth,
+            height: Variables.rowHeight * 2,
+            width: MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(
               style: (Variables.selectedUser.name == data['name'])
                   ? ButtonStyles.headerButtonStyle
@@ -415,7 +411,6 @@ class Widgets {
                 dateOfEmploymentController.text = DateFormat.yMd()
                     .format(Variables.currentUser.dateOfEmployment);
                 scheduleNameController.text = data['scheduleName'];
-                Variables.setPrefs(data['name']);
 
                 if (States.isNamePressed[index]) {
                   States.isNamePressed = List.filled(250, false);
@@ -640,10 +635,8 @@ class Widgets {
             if (snapshot.hasError) {
               return const Text('Что-то пошло не так');
             }
-
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
-              //const Text("Loading");
             }
             return ListView(
               children: snapshot.data!.docs.map((DocumentSnapshot document) {
@@ -652,13 +645,13 @@ class Widgets {
                     document.data()! as Map<String, dynamic>;
                 return Column(children: [
                   SizedBox(
-                    height: rowHeight * 2,
+                    height: Variables.rowHeight * 2,
                     child: schedulesMainScreenName(context, number, data),
                     //заголовок пользователя в списке пользователей
                   ),
                   SizedBox(
                     height:
-                        States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
+                        States.isSchedulePressed[number] ? Variables.rowHeight * 12 : 0.0,
                     child: schedulesMainScreenData(context, number, data),
                     //данные пользователя в списке пользователей
                   ),
@@ -669,13 +662,16 @@ class Widgets {
     );
   }
 
+
+
+
   static Widget schedulesMainScreenName(context, int index, data) {
     return Row(
       children: [
         Container(
             padding: const EdgeInsets.all(2.0),
-            height: rowHeight * 2,
-            width: firstColumnWidth,
+            height: Variables.rowHeight * 2,
+            width: Variables.firstColumnWidth,
             child: ElevatedButton(
               style: ButtonStyles.headerButtonStyle,
               onPressed: () {},
@@ -683,8 +679,8 @@ class Widgets {
             )),
         Container(
             padding: const EdgeInsets.all(2.0),
-            height: rowHeight * 2,
-            width: MediaQuery.of(context).size.width - firstColumnWidth,
+            height: Variables.rowHeight * 2,
+            width: MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(
               style: (Variables.currentSchedule.name == data['name'])
                   ? ButtonStyles.headerButtonStyle
@@ -850,50 +846,111 @@ class Widgets {
     });
   }
 
+  static Widget eventsScreen(context) {
+    //основная таблица  на экране UsersScreen
+    return Expanded(
+      // child: RefreshIndicator(
+      //   onRefresh: pullRefresh,
+      child: StreamBuilder<QuerySnapshot>(
+          stream: Events.getUsers(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> users) {
+            //int number = 0;
+            if (users.hasError) {
+              return const Text('Что-то пошло не так');
+            }
 
-  // static Widget eventsScreen(context) {
-  //   final Stream<QuerySnapshot> _eventsStream =
-  //   FirebaseFirestore.instance.collection('users').docs.collection('events').snapshots();
-  //   //основная таблица  на экране UsersScreen
-  //   return Expanded(
-  //     // child: RefreshIndicator(
-  //     //   onRefresh: pullRefresh,
-  //     child: StreamBuilder<QuerySnapshot>(
-  //         stream: _eventsStream,
-  //         builder:
-  //             (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-  //           int number = 0;
-  //           if (snapshot.hasError) {
-  //             return const Text('Что-то пошло не так');
-  //           }
-  //
-  //           if (snapshot.connectionState == ConnectionState.waiting) {
-  //             return const Center(child: CircularProgressIndicator());
-  //             //const Text("Loading");
-  //           }
-  //           return ListView(
-  //             children: snapshot.data!.docs.map((DocumentSnapshot document) {
-  //               number++;
-  //               Map<String, dynamic> data =
-  //               document.data()! as Map<String, dynamic>;
-  //               return Column(children: [
-  //                 SizedBox(
-  //                   height: rowHeight * 2,
-  //                   child: schedulesMainScreenName(context, number, data),
-  //                   //заголовок пользователя в списке пользователей
-  //                 ),
-  //                 SizedBox(
-  //                   height:
-  //                   States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
-  //                   child: schedulesMainScreenData(context, number, data),
-  //                   //данные пользователя в списке пользователей
-  //                 ),
-  //               ]);
-  //             }).toList(),
-  //           );
-  //         }),
-  //   );
+            if (users.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+              //const Text("Loading");
+            }
+            return ListView.builder(
+                itemCount: users.data!.docs.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return StreamBuilder<QuerySnapshot>(
+                      stream: Events.getEvents(users.data!.docs[index].id),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<QuerySnapshot> events) {
+                        // events.data!.docs.map((DocumentSnapshot document) {
+                        //   Map<String, dynamic> data =
+                        //   document.data()! as Map<String, dynamic>;
+                        if (events.hasError) {
+                          return const Text('Что-то пошло не так');
+                        }
+
+                        if (events.connectionState == ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                        if (events.data!.docs.isNotEmpty) {
+                      // events.data!.docs.map((DocumentSnapshot document) {
+                      //   Map<String, dynamic> data =
+                      //   events.data!.docs[index] as Map<String, dynamic>;
+                        return Column(children: [
+                          eventsMainScreenName(context,index,users.data!.docs[index].get('name')),
+                          SizedBox(
+                            height: Variables.rowHeight * 2,
+                            // States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
+                            child: ElevatedButton(
+                              style: ButtonStyles.usersListButtonStyle,
+                              onPressed: () {},
+                              child: //Text(''),
+                              (events.data!.docs.isNotEmpty)
+                                  ? Text(
+                                  events.data!.docs[0].get('event'))
+                                  : const Text(''),
+                            ),
+                            //данные пользователя в списке пользователей
+                          ),
+                        ]);
+                      // });
+                        } else {
+                          return const Divider();
+                        }
+                      });
+                });
+            // });
+          }),
+      //  ;);
+    );
+  }
+
+
+  static Widget eventsMainScreenName(context, int index, name) {
+    return
+      Row(
+      children: [
+        Container(
+            padding: const EdgeInsets.all(2.0),
+            height: Variables.rowHeight * 2,
+            width: Variables.firstColumnWidth,
+            child: ElevatedButton(
+              style: ButtonStyles.headerButtonStyle,
+              onPressed: () {},
+              child: Text('${index+1}'),
+            )),
+        Container(
+            padding: const EdgeInsets.all(2.0),
+            height: Variables.rowHeight * 2,
+            width: MediaQuery.of(context).size.width - Variables.firstColumnWidth,
+            child: ElevatedButton(
+              style: ButtonStyles.usersListButtonStyle,
+              onPressed: () {
+              },
+              child: ListTile(
+                title: Text(name),
+              ),
+            )),
+      ],
+    );
+  }
+
+  // static Widget eventsAlertDialogUserName(context, int index, name) {
+  //   return
+  //     Row(
+  //       children: [
+  //         ElevatedButton
+  //         Text(users[index],style: const TextStyle(fontSize: 10.0)),
+  //       ],
+  //     );
   // }
-
-
 }

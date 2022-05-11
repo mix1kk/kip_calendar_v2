@@ -16,6 +16,8 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 // }
 
  class Variables{
+   static double rowHeight = 40.0; // Высота строк
+   static double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
 
   static Map<int,String> numbersForWorkingDays=
   {1: 'Я',
@@ -28,6 +30,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    26:'В',
   };
   static Schedules currentSchedule=Schedules('0',List.filled(56, 26),false);
+  //todo: сделать selectedSchedule
   static void setPrefs (name)async{
    SharedPreferences prefs = await _prefs;
    await prefs.setString('name',name);
@@ -64,6 +67,29 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
      'user',
      false);
 
+
+static Events initialEvent = Events(
+   'eventName',
+  DateTime.now(),
+  DateTime.now(),
+  DateTime.now(),
+  'typeofEvent',
+  'comment',
+  false,
+  false,
+      );
+   static Events currentEvent = Events(
+     'eventName',
+     DateTime.now(),
+     DateTime.now(),
+     DateTime.now(),
+     'typeofEvent',
+     'comment',
+     false,
+     false,
+   );
+
+
  static DateTime clickedDay=DateTime.now();
  static  Map<DateTime,String> eventsDay=Map.fromIterables(//Инициализация переменной двумя листами
     List.generate(24, (index) => Variables.setZeroTime(Variables.clickedDay).add(Duration(hours: index))),
@@ -83,12 +109,5 @@ class States{
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
  static List<bool> isSchedulePressed=List.filled(100, false);
-}
-class Model
-{
- StreamController _streamController = StreamController<int>();
-
- Stream<dynamic> get counterUpdates => _streamController.stream;
-
 
 }

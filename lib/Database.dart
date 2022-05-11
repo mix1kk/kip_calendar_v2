@@ -7,52 +7,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'StatesAndVariables.dart';
 
 
-
-// class AddUser extends StatelessWidget {
-//   final String fullName;
-//   final String company;
-//   final int age;
-//
-//   AddUser(this.fullName, this.company, this.age);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // Create a CollectionReference called users that references the firestore collection
-//     CollectionReference users = FirebaseFirestore.instance.collection('users');
-//
-//     Future<void> addUser() {
-//       // Call the user's CollectionReference to add a new user
-//       return users
-//           .add({
-//         'full_name': fullName, // John Doe
-//         'company': company, // Stokes and Sons
-//         'age': age // 42
-//       })
-//           .then((value) => print("User Added"))
-//           .catchError((error) => print("Failed to add user: $error"));
-//     }
-//
-//     return TextButton(
-//       onPressed: addUser,
-//       child: Text(
-//         "Add User",
-//       ),
-//     );
-//   }
-// }
-
-
-//
-
-//
 class Schedules {
-   String name;
-   List<int> schedule;
-   bool isExpanded;
+  String name;
+  List<int> schedule;
+  bool isExpanded;
 
-  Schedules( this.name, this.schedule,this.isExpanded);
+  Schedules(this.name, this.schedule, this.isExpanded);
 
-  static addSchedule(String scheduleName, List<int> scheduleList,bool isExpanded) async {
+  static addSchedule(String scheduleName, List<int> scheduleList,
+      bool isExpanded) async {
     await FirebaseFirestore.instance
         .collection('schedules')
         .doc(scheduleName)
@@ -75,11 +38,11 @@ class Schedules {
         .doc(scheduleName)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-       //List <dynamic> list = documentSnapshot.get('schedule');
+      //List <dynamic> list = documentSnapshot.get('schedule');
       schedule = Schedules(
           documentSnapshot.get('name'),
           //list.cast<int>(),
-           documentSnapshot.get('schedule').cast<int>(),
+          documentSnapshot.get('schedule').cast<int>(),
           documentSnapshot.get('isExpanded')
       );
     });
@@ -92,7 +55,6 @@ class Schedules {
         .collection('schedules')
         .doc(scheduleName)
         .delete();
-
   }
 
   // static getScheduleName(int scheduleNumber) async {
@@ -122,8 +84,9 @@ class Schedules {
   //   return scheduleName;
   // }
 
-  static getWorkingDay(DateTime currentDay,List<int> schedule) {
-    Duration difference = currentDay.difference(DateTime(2022).subtract(const Duration(days :5)));
+  static getWorkingDay(DateTime currentDay, List<int> schedule) {
+    Duration difference = currentDay.difference(
+        DateTime(2022).subtract(const Duration(days: 5)));
     return schedule[difference.inDays %
         56]; // 26 - выходной, 1 - рабочий в день, 2 - рабочий в ночь
   }
@@ -131,17 +94,17 @@ class Schedules {
 
 
 class Users {
-   String name;
-   String password;
-   String tableNumber;
-   String position;
-   DateTime dateOfBirth;
-   DateTime dateOfEmployment;
-   String scheduleName;
-   String unit;
-   String phoneNumber;
-   String role;
-   bool isExpanded;
+  String name;
+  String password;
+  String tableNumber;
+  String position;
+  DateTime dateOfBirth;
+  DateTime dateOfEmployment;
+  String scheduleName;
+  String unit;
+  String phoneNumber;
+  String role;
+  bool isExpanded;
 
   Users(this.name,
       this.password,
@@ -156,11 +119,7 @@ class Users {
       this.isExpanded);
 
 
-
-  static addUser(
-      Users user
-      )
-  async {
+  static addUser(Users user) async {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(user.name)
@@ -184,43 +143,43 @@ class Users {
   }
 
   static Future getUserByName(String Name) async {
-    Users user=Variables.currentUser;
+    Users user = Variables.currentUser;
     //чтение из базы данных
     await FirebaseFirestore.instance
         .collection('users')
         .doc(Name)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-       user=Users(
-      documentSnapshot.get('name'),
-      documentSnapshot.get('password'),
-      documentSnapshot.get('tableNumber'),
-      documentSnapshot.get('position'),
-      documentSnapshot.get('dateOfBirth').toDate(),
-      documentSnapshot.get('dateOfEmployment').toDate(),
-      documentSnapshot.get('scheduleName'),
-        documentSnapshot.get('unit'),
-        documentSnapshot.get('phoneNumber'),
-        documentSnapshot.get('role'),
-        documentSnapshot.get('isExpanded')
+      user = Users(
+          documentSnapshot.get('name'),
+          documentSnapshot.get('password'),
+          documentSnapshot.get('tableNumber'),
+          documentSnapshot.get('position'),
+          documentSnapshot.get('dateOfBirth').toDate(),
+          documentSnapshot.get('dateOfEmployment').toDate(),
+          documentSnapshot.get('scheduleName'),
+          documentSnapshot.get('unit'),
+          documentSnapshot.get('phoneNumber'),
+          documentSnapshot.get('role'),
+          documentSnapshot.get('isExpanded')
       );
     });
-      return user;
+    return user;
   }
 
-  // static getAllUsersNames() async {
-  //   //чтение из базы данных
-  //   List<String> userNames = [];
-  //   await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .get()
-  //       .then((QuerySnapshot querySnapshot) {
-  //     querySnapshot.docs.forEach((doc) {
-  //       userNames.add(doc.get('name'));
-  //     });
-  //   });
-  //   return userNames;
-  // }
+  static Future getAllUsersNames() async {
+    //чтение из базы данных
+    List<String> userNames = [];
+    await FirebaseFirestore.instance
+        .collection('users')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        userNames.add(doc.get('name'));
+      });
+    });
+    return userNames;
+  }
 
   static deleteUser(String userName) async {
     //чтение из базы данных
@@ -229,49 +188,64 @@ class Users {
   }
 }
 
-// class Events {
-//   static String event = '';
-//   static DateTime startDate = DateTime.now();
-//   static DateTime endDate = DateTime.now();
-//   static DateTime dateOfNotification = DateTime.now();
-//   static String typeOfEvent = '';
-//   static String comment = '';
-//   static bool isDone = false;
-//
-//   static Future addEvent(
-//       String name,
-//       String event,
-//       DateTime startDate,
-//       DateTime endDate,
-//       DateTime dateOfNotification,
-//       String typeOfEvent,
-//       String comment,
-//       bool isDone,
-//       ) async {
-//     await FirebaseFirestore.instance
-//         .collection('users')
-//         .doc(name)
-//         .collection('events')
-//         .doc()
-//         .get()
-//         .then((DocumentSnapshot documentSnapshot) {
-//       FirebaseFirestore.instance
-//           .collection('users')
-//           .doc(name)
-//           .collection('events')
-//           .doc()
-//           .set({
-//         'event': event,
-//         'startDate': startDate,
-//         'endDate': endDate,
-//         'dateOfNotification': dateOfNotification,
-//         'typeOfEvent': typeOfEvent,
-//         'comment': comment,
-//         'isDone': isDone,
-//       });
-//     });
-//     //await getAllEvents([name]);
-//   }
+class Events {
+  String event;
+  DateTime startDate;
+  DateTime endDate;
+  DateTime dateOfNotification;
+  String typeOfEvent;
+  String comment;
+  bool isDone;
+  bool isVisible;
+
+  Events(this.event,
+      this.startDate,
+      this.endDate,
+      this.dateOfNotification,
+      this.typeOfEvent,
+      this.comment,
+      this.isDone,
+      this.isVisible);
+
+
+ static  Stream<QuerySnapshot> getUsers() {
+    return FirebaseFirestore.instance.collection('users').snapshots();
+  }
+ static Stream<QuerySnapshot> getEvents(username) {
+    return FirebaseFirestore.instance.collection('users').doc(username).collection('events').snapshots();
+  }
+
+
+
+    static Future addEvent(
+      String userName,
+      Events newEvent
+      ) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userName)
+        .collection('events')
+        .doc()
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(userName)
+          .collection('events')
+          .doc()
+          .set({
+        'event': newEvent.event,
+        'startDate': newEvent.startDate,
+        'endDate': newEvent.endDate,
+        'dateOfNotification': newEvent.dateOfNotification,
+        'typeOfEvent': newEvent.typeOfEvent,
+        'comment': newEvent.comment,
+        'isDone': newEvent.isDone,
+        'isVisible': newEvent.isVisible
+      });
+    });
+    //await getAllEvents([name]);
+  }
 //
 //   static Future getEvent(String name, String eventId) async {
 //     //чтение из базы данных
@@ -350,4 +324,4 @@ class Users {
 //     await getAllEvents([userName]);
 //
 //   }
-// }
+}

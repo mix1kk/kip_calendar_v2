@@ -5,6 +5,7 @@ import 'package:kip_calendar_v2/Menu/Menu.dart';
 import 'package:kip_calendar_v2/Events/Events.dart';
 import 'package:flutter/material.dart';
 
+import '../AlertDialogs.dart';
 import '../Widgets.dart';
 import '../main.dart';
 
@@ -34,8 +35,19 @@ class _EventsScreenState extends State<EventsScreen> {
         ),
         body: Column(
           children: [
-            Widgets.schedulesScreen(context),
+            Widgets.eventsScreen(context),
           ],
-        ),);
+        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async{
+         await AlertDialogs.addEventAlertDialog(context);
+         setState(() {
+
+         });
+        },
+        child: const Icon(Icons.add_outlined),
+      ),
+
+    );
   }
 }
