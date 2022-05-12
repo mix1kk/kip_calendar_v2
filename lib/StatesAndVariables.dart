@@ -69,6 +69,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 
 static Events initialEvent = Events(
+   'userName',
    'eventName',
   DateTime.now(),
   DateTime.now(),
@@ -77,17 +78,9 @@ static Events initialEvent = Events(
   'comment',
   false,
   false,
+  false
       );
-   static Events currentEvent = Events(
-     'eventName',
-     DateTime.now(),
-     DateTime.now(),
-     DateTime.now(),
-     'typeofEvent',
-     'comment',
-     false,
-     false,
-   );
+   static Events currentEvent = initialEvent;
 
 
  static DateTime clickedDay=DateTime.now();
@@ -109,5 +102,7 @@ class States{
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
  static List<bool> isSchedulePressed=List.filled(100, false);
+ static List<bool> isEventPressed=List.filled(1000, false);
+static String eventPressed='';
 
 }

@@ -6,11 +6,12 @@ import 'Database.dart';
 import 'Styles.dart';
 import 'package:intl/intl.dart';
 
-
 final TextEditingController dateOfBirthController = TextEditingController();
-final TextEditingController dateOfEmploymentController =
-    TextEditingController();
+final TextEditingController dateOfEmploymentController = TextEditingController();
 final TextEditingController scheduleNameController = TextEditingController();
+final TextEditingController startDateEventController = TextEditingController();
+final TextEditingController endDateEventController = TextEditingController();
+final TextEditingController dateOfNotificationEventController = TextEditingController();
 
 
 class Widgets {
@@ -158,7 +159,9 @@ class Widgets {
       widgets.add(
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 3.0),
-          width: (MediaQuery.of(context).size.width - Variables.firstColumnWidth) / 7,
+          width:
+              (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
+                  7,
           height: Variables.rowHeight,
           child: (callPlace == 'main')
               ? dayCalendarMonthScreen(week[day], style, context)
@@ -283,8 +286,9 @@ class Widgets {
               ),
             ),
             SizedBox(
-              width:
-                  MediaQuery.of(context).size.width / 2 - Variables.firstColumnWidth - 2,
+              width: MediaQuery.of(context).size.width / 2 -
+                  Variables.firstColumnWidth -
+                  2,
               child: ElevatedButton(
                 style: ButtonStyles.dayEventsButtonStyle,
                 onPressed: () {
@@ -313,8 +317,9 @@ class Widgets {
               ),
             ),
             SizedBox(
-              width:
-                  MediaQuery.of(context).size.width / 2 - Variables.firstColumnWidth - 2,
+              width: MediaQuery.of(context).size.width / 2 -
+                  Variables.firstColumnWidth -
+                  2,
               child: ElevatedButton(
                 style: ButtonStyles.dayEventsButtonStyle,
                 onPressed: () {
@@ -361,7 +366,9 @@ class Widgets {
                     //заголовок пользователя в списке пользователей
                   ),
                   SizedBox(
-                    height: States.isNamePressed[number] ? Variables.rowHeight * 17 : 0.0,
+                    height: States.isNamePressed[number]
+                        ? Variables.rowHeight * 17
+                        : 0.0,
                     child: usersMainScreenData(context, number, data),
                     //данные пользователя в списке пользователей
                   ),
@@ -387,7 +394,8 @@ class Widgets {
         Container(
             padding: const EdgeInsets.all(2.0),
             height: Variables.rowHeight * 2,
-            width: MediaQuery.of(context).size.width - Variables.firstColumnWidth,
+            width:
+                MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(
               style: (Variables.selectedUser.name == data['name'])
                   ? ButtonStyles.headerButtonStyle
@@ -496,14 +504,10 @@ class Widgets {
             decoration: const InputDecoration(
               labelText: 'Дата рождения',
             ),
-            // initialValue: DateFormat.yMd()
-            //     .format(data['dateOfBirth'].toDate())
-            //     .toString(),
           ),
           TextFormField(
             controller: dateOfEmploymentController,
             readOnly: true,
-            //Variables.selectedUser.role != 'admin',
             onTap: () async {
               if (Variables.selectedUser.role == 'admin') {
                 Variables.currentUser.dateOfEmployment =
@@ -517,9 +521,6 @@ class Widgets {
             decoration: const InputDecoration(
               labelText: 'Дата трудоустройства',
             ),
-            // initialValue: DateFormat.yMd()
-            //     .format(data['dateOfEmployment'].toDate())
-            //     .toString(),
           ),
           TextFormField(
             readOnly: true,
@@ -650,8 +651,9 @@ class Widgets {
                     //заголовок пользователя в списке пользователей
                   ),
                   SizedBox(
-                    height:
-                        States.isSchedulePressed[number] ? Variables.rowHeight * 12 : 0.0,
+                    height: States.isSchedulePressed[number]
+                        ? Variables.rowHeight * 12
+                        : 0.0,
                     child: schedulesMainScreenData(context, number, data),
                     //данные пользователя в списке пользователей
                   ),
@@ -661,9 +663,6 @@ class Widgets {
           }),
     );
   }
-
-
-
 
   static Widget schedulesMainScreenName(context, int index, data) {
     return Row(
@@ -680,7 +679,8 @@ class Widgets {
         Container(
             padding: const EdgeInsets.all(2.0),
             height: Variables.rowHeight * 2,
-            width: MediaQuery.of(context).size.width - Variables.firstColumnWidth,
+            width:
+                MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(
               style: (Variables.currentSchedule.name == data['name'])
                   ? ButtonStyles.headerButtonStyle
@@ -847,77 +847,117 @@ class Widgets {
   }
 
   static Widget eventsScreen(context) {
-    //основная таблица  на экране UsersScreen
+    //основная таблица  на экране Events
     return Expanded(
-      // child: RefreshIndicator(
-      //   onRefresh: pullRefresh,
       child: StreamBuilder<QuerySnapshot>(
-          stream: Events.getUsers(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> users) {
-            //int number = 0;
-            if (users.hasError) {
+          stream: FirebaseFirestore.instance
+              .collectionGroup('events')
+              .snapshots(),
+          //stream: Events.eventsStream(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> events) {
+
+            if (events.hasError) {
               return const Text('Что-то пошло не так');
             }
 
-            if (users.connectionState == ConnectionState.waiting) {
+            if (events.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
               //const Text("Loading");
             }
             return ListView.builder(
-                itemCount: users.data!.docs.length,
+                itemCount: events.data!.docs.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return StreamBuilder<QuerySnapshot>(
-                      stream: Events.getEvents(users.data!.docs[index].id),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<QuerySnapshot> events) {
-                        // events.data!.docs.map((DocumentSnapshot document) {
-                        //   Map<String, dynamic> data =
-                        //   document.data()! as Map<String, dynamic>;
-                        if (events.hasError) {
-                          return const Text('Что-то пошло не так');
-                        }
-
-                        if (events.connectionState == ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator());
-                        }
-                        if (events.data!.docs.isNotEmpty) {
-                      // events.data!.docs.map((DocumentSnapshot document) {
-                      //   Map<String, dynamic> data =
-                      //   events.data!.docs[index] as Map<String, dynamic>;
-                        return Column(children: [
-                          eventsMainScreenName(context,index,users.data!.docs[index].get('name')),
-                          SizedBox(
-                            height: Variables.rowHeight * 2,
-                            // States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
-                            child: ElevatedButton(
-                              style: ButtonStyles.usersListButtonStyle,
-                              onPressed: () {},
-                              child: //Text(''),
-                              (events.data!.docs.isNotEmpty)
-                                  ? Text(
-                                  events.data!.docs[0].get('event'))
-                                  : const Text(''),
-                            ),
-                            //данные пользователя в списке пользователей
-                          ),
-                        ]);
-                      // });
-                        } else {
-                          return const Divider();
-                        }
-                      });
+                  return Column(children: [
+                    eventsMainScreenName(
+                        context,
+                        index,
+                        events.data!.docs[index],
+                    ),
+                    SizedBox(
+                      height:
+                      //Variables.rowHeight * 2,
+                      (events.data!.docs[index].id == States.eventPressed )? Variables.rowHeight * 12 : 0.0,
+                      child: eventsMainScreenData(context,
+                      index,
+                      events.data!.docs[index],),
+                    ),
+                  ]);
                 });
-            // });
           }),
-      //  ;);
     );
   }
 
+  // static Widget eventsScreen(context) {
+  //   //основная таблица  на экране UsersScreen
+  //   return Expanded(
+  //     // child: RefreshIndicator(
+  //     //   onRefresh: pullRefresh,
+  //     child: StreamBuilder<QuerySnapshot>(
+  //         stream: Events.getUsers(),
+  //         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> users) {
+  //           //int number = 0;
+  //           if (users.hasError) {
+  //             return const Text('Что-то пошло не так');
+  //           }
+  //
+  //           if (users.connectionState == ConnectionState.waiting) {
+  //             return const Center(child: CircularProgressIndicator());
+  //             //const Text("Loading");
+  //           }
+  //           return ListView.builder(
+  //               itemCount: users.data!.docs.length,
+  //               itemBuilder: (BuildContext context, int index) {
+  //                 return StreamBuilder<QuerySnapshot>(
+  //                     stream: Events.getEvents(users.data!.docs[index].id),
+  //                     builder: (BuildContext context,
+  //                         AsyncSnapshot<QuerySnapshot> events) {
+  //                       // events.data!.docs.map((DocumentSnapshot document) {
+  //                       //   Map<String, dynamic> data =
+  //                       //   document.data()! as Map<String, dynamic>;
+  //                       if (events.hasError) {
+  //                         return const Text('Что-то пошло не так');
+  //                       }
+  //
+  //                       if (events.connectionState == ConnectionState.waiting) {
+  //                         return const Center(
+  //                             child: CircularProgressIndicator());
+  //                       }
+  //                       if (events.data!.docs.isNotEmpty) {
+  //                     // events.data!.docs.map((DocumentSnapshot document) {
+  //                     //   Map<String, dynamic> data =
+  //                     //   events.data!.docs[index] as Map<String, dynamic>;
+  //                       return Column(children: [
+  //                         eventsMainScreenName(context,index,users.data!.docs[index].get('name')),
+  //                         SizedBox(
+  //                           height: Variables.rowHeight * 2,
+  //                           // States.isSchedulePressed[number] ? rowHeight * 12 : 0.0,
+  //                           child: ElevatedButton(
+  //                             style: ButtonStyles.usersListButtonStyle,
+  //                             onPressed: () {},
+  //                             child: //Text(''),
+  //                             (events.data!.docs.isNotEmpty)
+  //                                 ? Text(
+  //                                 events.data!.docs[0].get('event'))
+  //                                 : const Text(''),
+  //                           ),
+  //                           //данные пользователя в списке пользователей
+  //                         ),
+  //                       ]);
+  //                     // });
+  //                       } else {
+  //                         return const Divider();
+  //                       }
+  //                     });
+  //               });
+  //           // });
+  //         }),
+  //     //  ;);
+  //   );
+  // }
 
-  static Widget eventsMainScreenName(context, int index, name) {
-    return
-      Row(
+  static Widget eventsMainScreenName(context, int index, DocumentSnapshot event) {//построение списка с названиями событий для всех пользователей
+      Events newEvent = Events.getEventFromSnapshot(event);
+    return Row(
       children: [
         Container(
             padding: const EdgeInsets.all(2.0),
@@ -926,31 +966,225 @@ class Widgets {
             child: ElevatedButton(
               style: ButtonStyles.headerButtonStyle,
               onPressed: () {},
-              child: Text('${index+1}'),
+              child: Text('${index + 1}'),
             )),
         Container(
             padding: const EdgeInsets.all(2.0),
             height: Variables.rowHeight * 2,
-            width: MediaQuery.of(context).size.width - Variables.firstColumnWidth,
+            width:
+                MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(
-              style: ButtonStyles.usersListButtonStyle,
-              onPressed: () {
+              style: (event.id == States.eventPressed)?ButtonStyles.headerButtonStyle:ButtonStyles.usersListButtonStyle,
+              onPressed: () async{
+                if (event.id == States.eventPressed)
+                 { States.eventPressed='';
+                 Variables.currentEvent = Variables.initialEvent;
+                }
+                else {
+                  States.eventPressed=event.id;
+                  Variables.currentEvent = newEvent;
+                  startDateEventController.text =
+                      DateFormat.yMd().format(Variables.currentEvent.startDate);
+                  dateOfNotificationEventController.text = DateFormat.yMd()
+                      .format(Variables.currentEvent.dateOfNotification);
+                  endDateEventController.text = DateFormat.yMd()
+                      .format(Variables.currentEvent.endDate);
+                }//для окрашивания выбранного ивента
+                newEvent.isExpanded = !newEvent.isExpanded;//для обновления экрана
+                 await Events.updateEvent(newEvent.userName, newEvent,event.id);//для обновления экрана
               },
               child: ListTile(
-                title: Text(name),
+                title: Text(newEvent.event),
+                subtitle: Text(newEvent.userName),
               ),
             )),
       ],
     );
   }
+  static Widget eventsMainScreenData(context,int index, DocumentSnapshot event) {
+    Events eventData = Events.getEventFromSnapshot(event);
+    //полные данные пользователей
+    return Container(
+      padding: const EdgeInsets.all(2.0),
+      // height: States.isNamePressed[number] ? rowHeight * 15 : 0.0,
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: [
+          // TextFormField(
+          //   decoration: const InputDecoration(
+          //     labelText: 'ФИО',
+          //   ),
+          //   readOnly: Variables.selectedUser.role != 'admin',
+          //   initialValue: eventData.userName,
+          //   onChanged: (value) {
+          //     Variables.currentEvent.userName = value;
+          //   },
+          // ),
+          TextFormField(
+            readOnly: Variables.selectedUser.role != 'admin',
+            decoration: const InputDecoration(
+              labelText: 'Название события',
+            ),
+            initialValue: Variables.currentEvent.event,
+            onChanged: (value) {
+              Variables.currentEvent.event = value;
+            },
+          ),
+          // TextFormField(
+          //   readOnly: Variables.selectedUser.role != 'admin',
+          //   decoration: const InputDecoration(
+          //     labelText: 'Должность',
+          //   ),
+          //   initialValue: data['position'],
+          //   onChanged: (value) {
+          //     Variables.currentUser.position = value;
+          //   },
+          // ),
+          TextFormField(
+            controller: startDateEventController,
+            readOnly: true,
+            onTap: () async {
+              if (Variables.selectedUser.role == 'admin') {
+                Variables.currentEvent.startDate =
+                await AlertDialogs.selectDate(
+                    Variables.currentEvent.startDate, context);
+                startDateEventController.text =
+                    DateFormat.yMd().format(Variables.currentEvent.startDate);
+              }
+            },
+            decoration: const InputDecoration(
+              labelText: 'Дата начала события',
+            ),
+          ),
+          TextFormField(
+            controller: endDateEventController,
+            readOnly: true,
+            onTap: () async {
+              if (Variables.selectedUser.role == 'admin') {
+                Variables.currentEvent.endDate =
+                await AlertDialogs.selectDate(
+                    Variables.currentEvent.endDate, context);
+                endDateEventController.text = DateFormat.yMd()
+                    .format(Variables.currentEvent.endDate);
+                //    FocusManager.instance.primaryFocus?.unfocus();
+              }
+            },
+            decoration: const InputDecoration(
+              labelText: 'Дата окончания события',
+            ),
+          ),
 
-  // static Widget eventsAlertDialogUserName(context, int index, name) {
-  //   return
-  //     Row(
-  //       children: [
-  //         ElevatedButton
-  //         Text(users[index],style: const TextStyle(fontSize: 10.0)),
-  //       ],
-  //     );
-  // }
+          TextFormField(
+            controller: dateOfNotificationEventController,
+            readOnly: true,
+            onTap: () async {
+              if (Variables.selectedUser.role == 'admin') {
+                Variables.currentEvent.dateOfNotification =
+                await AlertDialogs.selectDate(
+                    Variables.currentEvent.dateOfNotification, context);
+                dateOfNotificationEventController.text = DateFormat.yMd()
+                    .format(Variables.currentEvent.dateOfNotification);
+                //    FocusManager.instance.primaryFocus?.unfocus();
+              }
+            },
+            decoration: const InputDecoration(
+              labelText: 'Дата напоминания',
+            ),
+          ),
+          // TextFormField(
+          //   readOnly: true,
+          //   controller: scheduleNameController,
+          //   decoration: const InputDecoration(
+          //     labelText: 'График',
+          //   ),
+          //   //initialValue: data['scheduleName'],
+          //   //  initialValue: Variables.currentUser.scheduleName,
+          //   onTap: () {
+          //     if (Variables.selectedUser.role == 'admin') {
+          //       Navigator.pushNamed(context, '/schedules');
+          //     }
+          //   },
+          //   // onChanged: (value) {
+          //   //   Variables.currentUser.scheduleName = value;
+          //   // },
+          // ),
+          TextFormField(
+            readOnly: Variables.selectedUser.role != 'admin',
+            decoration: const InputDecoration(
+              labelText: 'Тип события',
+            ),
+            initialValue: Variables.currentEvent.typeOfEvent,
+            onChanged: (value) {
+              Variables.currentEvent.typeOfEvent = value;
+            },
+          ),
+          // TextFormField(
+          //   keyboardType: TextInputType.phone,
+          //   readOnly: !((Variables.selectedUser.role == 'admin') |
+          //   (Variables.selectedUser.name == Variables.currentUser.name)),
+          //   decoration: const InputDecoration(
+          //     labelText: 'Комментарий',
+          //   ),
+          //   initialValue: data['phoneNumber'],
+          //   onChanged: (value) {
+          //     Variables.currentUser.phoneNumber = value;
+          //   },
+          // ),
+          TextFormField(
+            readOnly: Variables.selectedUser.role != 'admin',
+            decoration: const InputDecoration(
+              labelText: 'Комментарий',
+            ),
+            initialValue: Variables.currentEvent.comment,
+            onChanged: (value) {
+              Variables.currentEvent.comment = value;
+            },
+          ),
+          //todo: сделать флаг "задание выполнено"
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton.icon(
+                  style: ButtonStyles.headerButtonStyle,
+                  onPressed: () {
+                    if (Variables.selectedUser.role == 'admin') {
+                      Events.deleteEvent(Variables.currentEvent.userName, event.id);
+                     // AlertDialogs.deleteAlertDialogUserScreen(context, index);
+                      //todo: alertdialog delete
+                    }
+                  },
+                  icon: const Icon(Icons.delete),
+                  label: const Text('Удалить   ')),
+              ElevatedButton.icon(
+                  style: ButtonStyles.headerButtonStyle,
+                  onPressed: () {
+                    if (Variables.selectedUser.role == 'admin') {
+                      //если админ, то сохраняем все поля пользователя, если не админ, то только номер телефона
+                      Events.updateEvent(Variables.currentEvent.userName,Variables.currentEvent,event.id);
+                      States.eventPressed='';}
+                  },
+                  icon: const Icon(Icons.save),
+                  label: const Text('Сохранить   ')),
+              // ElevatedButton.icon(
+              //     style: ButtonStyles.headerButtonStyle,
+              //     onPressed: () async {
+              //       AlertDialogs.selectAlertDialogUserScreen(context, index);
+              //     },
+              //     icon: const Icon(Icons.adjust),
+              //     label: const Text('Выбрать   ')),
+            ],
+          )
+        ],
+      ),
+    );
+  }
+// static Widget eventsAlertDialogUserName(context, int index, name) {
+//   return
+//     Row(
+//       children: [
+//         ElevatedButton
+//         Text(users[index],style: const TextStyle(fontSize: 10.0)),
+//       ],
+//     );
+// }
 }

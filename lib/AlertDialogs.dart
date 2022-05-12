@@ -307,10 +307,11 @@ class AlertDialogs {
                   TextButton(
                     child: const Text("Добавить"),
                     onPressed: () async {
-                      for (int i = 0; i < selectedUsers.length; i++) {
-                        await Events.addEvent(selectedUsers[i], Variables.currentEvent);
+                     // print(selectedUsers);
+                    //  for (int i = 0; i < selectedUsers.length; i++) {
+                        await Events.addEvent(selectedUsers, Variables.currentEvent);
                         Navigator.of(context).pop();
-                      }
+                    //  }
                     },
                   ),
                 ],
