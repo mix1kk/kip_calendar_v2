@@ -1,20 +1,10 @@
+
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Database.dart';
-final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-// class CurrentUser{
-//  static String selectedUserName = 'user';
-//  static String selectedUserPassword = '';
-//  static String selectedUserTableNumber = '001';
-//  static String selectedUserPosition = 'position';
-//  static DateTime selectedUserDateOfBirth = DateTime(2022);
-//  static DateTime selectedUserDateOfEmployment = DateTime(2022);
-//  static String selectedUserScheduleName = '0';
-//  static String selectedUserPhoneNumber = '8 987 654 32 10';
-//  static String selectedUserRole = 'user';
-//  static bool selectedUserIsExpanded = false;
-// }
 
+
+final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
  class Variables{
    static double rowHeight = 40.0; // Высота строк
    static double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели

@@ -28,7 +28,10 @@ class ButtonStyles {
       {style = ButtonStyles.workingNightButtonStyle;}
       else
       {
-        style = ButtonStyles.simpleDayButtonStyle;//нерабочий день
+        // if(){}
+        // else {
+          style = ButtonStyles.simpleDayButtonStyle;
+        // }//нерабочий день
       }
     }
     return style;

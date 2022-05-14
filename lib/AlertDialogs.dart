@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:intl/intl.dart';
-
 import 'StatesAndVariables.dart';
 import 'Database.dart';
 import 'Styles.dart';
-
 
 
 class AlertDialogs {
@@ -57,7 +54,7 @@ class AlertDialogs {
 
   static saveAlertDialogUserScreen(BuildContext context, index) {
     bool isVisible = false;
-    String password = '';
+ //   String password = '';
     String alertDialogTitle = 'Введите пароль';
     final TextEditingController passwordController = TextEditingController();
     showDialog(
@@ -100,10 +97,10 @@ class AlertDialogs {
                           Variables.currentUser.password) {
                         Variables.selectedUser = Variables.currentUser;
                         States.isNamePressed[index] =
-                            !States.isNamePressed[index];
+                        !States.isNamePressed[index];
                         //сделано для обновления экрана
                         Variables.currentUser.isExpanded =
-                            !Variables.currentUser.isExpanded;
+                        !Variables.currentUser.isExpanded;
                         Users.addUser(Variables.currentUser);
                         //сделано для обновления экрана
                         Navigator.of(context).pop();
@@ -167,10 +164,10 @@ class AlertDialogs {
                         Variables.setPrefs(Variables.currentUser.name);
                         Variables.selectedUser = Variables.currentUser;
                         States.isNamePressed[index] =
-                            !States.isNamePressed[index];
+                        !States.isNamePressed[index];
                         //сделано для обновления экрана
                         Variables.currentUser.isExpanded =
-                            !Variables.currentUser.isExpanded;
+                        !Variables.currentUser.isExpanded;
                         Users.addUser(Variables.currentUser);
                         Variables.currentSchedule = await Schedules.getSchedule(
                             Variables.selectedUser.scheduleName);
@@ -198,7 +195,7 @@ class AlertDialogs {
             builder: (context, setState) {
               return AlertDialog(
                 title:
-                    Text('Удалить график ${Variables.currentSchedule.name}?'),
+                Text('Удалить график ${Variables.currentSchedule.name}?'),
                 // content: Text(),
                 actions: [
                   TextButton(
@@ -225,8 +222,54 @@ class AlertDialogs {
         });
   }
 
+  static deleteEventsScreen(BuildContext context, userName, id) {
+    //всплывающий диалог при удалении события
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title:
+                Text('Удалить событие ${Variables.currentEvent.event}?'),
+                // content: Text(),
+                actions: [
+                  TextButton(
+                    child: const Text("Отмена"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  TextButton(
+                    child: const Text("Удалить"),
+                    onPressed: () async {
+                      await Events.deleteEvent(
+                          userName, id);
+                      States.eventPressed = '';
+                      Navigator.pushNamedAndRemoveUntil(
+                          context, '/events', (route) => false);
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        });
+  }
+
   static Future addEventAlertDialog(context) async {
+    final TextEditingController startDateEventController = TextEditingController();
+    final TextEditingController endDateEventController = TextEditingController();
+    final TextEditingController dateOfNotificationEventController = TextEditingController();
     final TextEditingController eventsUserNameController = TextEditingController();
+    startDateEventController.text =
+        DateFormat.yMd().format(Variables.currentEvent.startDate);
+    dateOfNotificationEventController.text = DateFormat.yMd()
+        .format(Variables.currentEvent.dateOfNotification);
+    endDateEventController.text = DateFormat.yMd()
+        .format(Variables.currentEvent.endDate);
+
+
     List<String> users = [];
     List<String> selectedUsers = [];
     bool userNameTapped = false;
@@ -251,9 +294,12 @@ class AlertDialogs {
                         setState(() {});
                       },
                     ),
-                    SizedBox(
+                    SizedBox( //выбор пользователей для создания события
                       height: userNameTapped ? Variables.rowHeight * 10 : 0.0,
-                      width: MediaQuery.of(context).size.width,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
                       child: ListView.builder(
                           itemCount: users.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -268,33 +314,174 @@ class AlertDialogs {
                                       child: Text('${index + 1}'),
                                     ),
                                   ),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width/2,
-                                child: ElevatedButton(
-                                    style:
-                                        (selectedUsers.contains(users[index]))//цвет зависит от того, добавлен ли юзер в список
-                                            ? ButtonStyles.headerButtonStyle
-                                            : ButtonStyles.usersListButtonStyle,
-                                    onPressed: () {
-                                      if (selectedUsers//при нажатии закрашивает и добавляет в список, при повторном удаляет
-                                          .contains(users[index])) {
-                                        selectedUsers.remove(users[index]);
-                                        eventsUserNameController.text = selectedUsers.toString();
-                                      } else {
-                                        selectedUsers.add(users[index]);
-                                        eventsUserNameController.text = selectedUsers.toString();
-                                      }
-                                      setState(() {});
-                                    },
-                                    child: Text(users[index],
-                                        style: const TextStyle(fontSize: 10.0)),
+                                  SizedBox(
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width / 2,
+                                    child: ElevatedButton(
+                                      style:
+                                      (selectedUsers.contains(
+                                          users[index])) //цвет зависит от того, добавлен ли юзер в список
+                                          ? ButtonStyles.headerButtonStyle
+                                          : ButtonStyles.usersListButtonStyle,
+                                      onPressed: () {
+                                        if (selectedUsers //при нажатии закрашивает и добавляет в список, при повторном удаляет
+                                            .contains(users[index])) {
+                                          selectedUsers.remove(users[index]);
+                                          eventsUserNameController.text =
+                                              selectedUsers.toString();
+                                        } else {
+                                          selectedUsers.add(users[index]);
+                                          eventsUserNameController.text =
+                                              selectedUsers.toString();
+                                        }
+                                        setState(() {});
+                                      },
+                                      child: Text(users[index],
+                                          style: const TextStyle(
+                                              fontSize: 10.0)),
+                                    ),
                                   ),
-                              ),
                                 ],
                               ),
                             );
                           }),
-                    )
+                    ),
+                    SizedBox( //Кнопки в выборе пользователей для события
+                      height: userNameTapped ? Variables.rowHeight : 0.0,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      child:Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton.icon(
+                              style: ButtonStyles.headerButtonStyle,
+                              onPressed: () {
+                                if (selectedUsers.length==users.length) {
+                                  selectedUsers.clear();
+                                }
+                                else {
+                                  selectedUsers.clear();
+                                  selectedUsers.addAll(users);
+                                }
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.group_add),
+                              label: const Text('Выбрать всех   ')),
+                          ElevatedButton.icon(
+                              style: ButtonStyles.headerButtonStyle,
+                              onPressed: () {
+                                eventsUserNameController.text =
+                                    selectedUsers.toString();
+                                userNameTapped = !userNameTapped;
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.done),
+                              label: const Text('Ок   ')),
+                        ],
+                      ),
+                    ),
+                    Container( //Данные события
+                      height: userNameTapped ? 0.0 : Variables.rowHeight * 10,
+                      padding: const EdgeInsets.all(2.0),
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            readOnly: Variables.selectedUser.role != 'admin',
+                            decoration: const InputDecoration(
+                              labelText: 'Название события',
+                            ),
+                            initialValue: Variables.currentEvent.event,
+                            onChanged: (value) {
+                              Variables.currentEvent.event = value;
+                            },
+                          ),
+                          TextFormField(
+                            controller: startDateEventController,
+                            readOnly: true,
+                            onTap: () async {
+                              if (Variables.selectedUser.role == 'admin') {
+                                Variables.currentEvent.startDate =
+                                await AlertDialogs.selectDate(
+                                    Variables.currentEvent.startDate, context);
+                                startDateEventController.text =
+                                    DateFormat.yMd().format(
+                                        Variables.currentEvent.startDate);
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Дата начала события',
+                            ),
+                          ),
+                          TextFormField(
+                            controller: endDateEventController,
+                            readOnly: true,
+                            onTap: () async {
+                              if (Variables.selectedUser.role == 'admin') {
+                                Variables.currentEvent.endDate =
+                                await AlertDialogs.selectDate(
+                                    Variables.currentEvent.endDate, context);
+                                endDateEventController.text = DateFormat.yMd()
+                                    .format(Variables.currentEvent.endDate);
+                                //    FocusManager.instance.primaryFocus?.unfocus();
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Дата окончания события',
+                            ),
+                          ),
+
+                          TextFormField(
+                            controller: dateOfNotificationEventController,
+                            readOnly: true,
+                            onTap: () async {
+                              if (Variables.selectedUser.role == 'admin') {
+                                Variables.currentEvent.dateOfNotification =
+                                await AlertDialogs.selectDate(
+                                    Variables.currentEvent.dateOfNotification,
+                                    context);
+                                dateOfNotificationEventController.text =
+                                    DateFormat.yMd()
+                                        .format(Variables.currentEvent
+                                        .dateOfNotification);
+                                //    FocusManager.instance.primaryFocus?.unfocus();
+                              }
+                            },
+                            decoration: const InputDecoration(
+                              labelText: 'Дата напоминания',
+                            ),
+                          ),
+                          TextFormField(
+                            readOnly: Variables.selectedUser.role != 'admin',
+                            decoration: const InputDecoration(
+                              labelText: 'Тип события',
+                            ),
+                            initialValue: Variables.currentEvent.typeOfEvent,
+                            onChanged: (value) {
+                              Variables.currentEvent.typeOfEvent = value;
+                            },
+                          ),
+                          TextFormField(
+                            readOnly: Variables.selectedUser.role != 'admin',
+                            decoration: const InputDecoration(
+                              labelText: 'Комментарий',
+                            ),
+                            initialValue: Variables.currentEvent.comment,
+                            onChanged: (value) {
+                              Variables.currentEvent.comment = value;
+                            },
+                          ),
+                          //todo: сделать флаг "задание выполнено"
+                        ],
+                      ),
+                    ),
                   ],
                 ),
                 actions: [
@@ -307,11 +494,14 @@ class AlertDialogs {
                   TextButton(
                     child: const Text("Добавить"),
                     onPressed: () async {
-                     // print(selectedUsers);
-                    //  for (int i = 0; i < selectedUsers.length; i++) {
-                        await Events.addEvent(selectedUsers, Variables.currentEvent);
+
+                      if(!userNameTapped) {
+                        await Events.addEvent(
+                          selectedUsers, Variables.initialEvent);
                         Navigator.of(context).pop();
-                    //  }
+                      }
+
+
                     },
                   ),
                 ],

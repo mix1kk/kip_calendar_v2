@@ -131,6 +131,7 @@ class Widgets {
 
   static List<Widget> weekCalendarMonthScreen(
       List<dynamic> week, context, String callPlace) {
+
     //7 дней недели в строке на экране CalendarMonthScreen
     List<Widget> widgets = [];
     var style =
@@ -174,6 +175,7 @@ class Widgets {
   }
 
   static Widget dayCalendarMonthScreen(dynamic day, style, context) {
+    List<Events> listEvents;
     String dayNumberByTK = '';
     String dayLetterByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
@@ -224,8 +226,9 @@ class Widgets {
         ],
       ),
       //todo Выбор цвета кнопки в зависимости от наличия событий в эту дату
-      onPressed: () {
+      onPressed: () async{
         if (day is! String) {
+          listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
           Navigator.pushNamed(context, '/calendarDay');
         }
         //todo считывание всех ивентов для данного пользователя в кликнутую дату
@@ -622,14 +625,14 @@ class Widgets {
   }
 
   static Widget schedulesScreen(context) {
-    final Stream<QuerySnapshot> _schedulesStream =
-        FirebaseFirestore.instance.collection('schedules').snapshots();
+    // final Stream<QuerySnapshot> _schedulesStream =
+    //     FirebaseFirestore.instance.collection('schedules').snapshots();
     //основная таблица  на экране UsersScreen
     return Expanded(
       // child: RefreshIndicator(
       //   onRefresh: pullRefresh,
       child: StreamBuilder<QuerySnapshot>(
-          stream: _schedulesStream,
+          stream: FirebaseFirestore.instance.collection('schedules').snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             int number = 0;
@@ -846,14 +849,20 @@ class Widgets {
     });
   }
 
+
+
   static Widget eventsScreen(context) {
+    Stream <QuerySnapshot> stream = FirebaseFirestore.instance
+        .collectionGroup('events')//.where('userName',isEqualTo: 'user')
+        .snapshots();
+
     //основная таблица  на экране Events
     return Expanded(
       child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collectionGroup('events')
-              .snapshots(),
-          //stream: Events.eventsStream(),
+          stream: stream,
+          // FirebaseFirestore.instance
+          //     .collectionGroup('events').where('userName',isEqualTo: 'user')
+          //     .snapshots(),
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> events) {
 
             if (events.hasError) {
@@ -864,7 +873,7 @@ class Widgets {
               return const Center(child: CircularProgressIndicator());
               //const Text("Loading");
             }
-            return ListView.builder(
+              return ListView.builder(
                 itemCount: events.data!.docs.length,
                 itemBuilder: (BuildContext context, int index) {
                   return Column(children: [
@@ -875,15 +884,14 @@ class Widgets {
                     ),
                     SizedBox(
                       height:
-                      //Variables.rowHeight * 2,
-                      (events.data!.docs[index].id == States.eventPressed )? Variables.rowHeight * 12 : 0.0,
+                      (events.data!.docs[index].id == States.eventPressed )? Variables.rowHeight * 11 : 0.0,
                       child: eventsMainScreenData(context,
-                      index,
                       events.data!.docs[index],),
                     ),
                   ]);
                 });
-          }),
+            })
+          // }),
     );
   }
 
@@ -1001,25 +1009,13 @@ class Widgets {
       ],
     );
   }
-  static Widget eventsMainScreenData(context,int index, DocumentSnapshot event) {
-    Events eventData = Events.getEventFromSnapshot(event);
+  static Widget eventsMainScreenData(context, DocumentSnapshot event) {
     //полные данные пользователей
     return Container(
       padding: const EdgeInsets.all(2.0),
-      // height: States.isNamePressed[number] ? rowHeight * 15 : 0.0,
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: [
-          // TextFormField(
-          //   decoration: const InputDecoration(
-          //     labelText: 'ФИО',
-          //   ),
-          //   readOnly: Variables.selectedUser.role != 'admin',
-          //   initialValue: eventData.userName,
-          //   onChanged: (value) {
-          //     Variables.currentEvent.userName = value;
-          //   },
-          // ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',
             decoration: const InputDecoration(
@@ -1030,16 +1026,6 @@ class Widgets {
               Variables.currentEvent.event = value;
             },
           ),
-          // TextFormField(
-          //   readOnly: Variables.selectedUser.role != 'admin',
-          //   decoration: const InputDecoration(
-          //     labelText: 'Должность',
-          //   ),
-          //   initialValue: data['position'],
-          //   onChanged: (value) {
-          //     Variables.currentUser.position = value;
-          //   },
-          // ),
           TextFormField(
             controller: startDateEventController,
             readOnly: true,
@@ -1091,23 +1077,6 @@ class Widgets {
               labelText: 'Дата напоминания',
             ),
           ),
-          // TextFormField(
-          //   readOnly: true,
-          //   controller: scheduleNameController,
-          //   decoration: const InputDecoration(
-          //     labelText: 'График',
-          //   ),
-          //   //initialValue: data['scheduleName'],
-          //   //  initialValue: Variables.currentUser.scheduleName,
-          //   onTap: () {
-          //     if (Variables.selectedUser.role == 'admin') {
-          //       Navigator.pushNamed(context, '/schedules');
-          //     }
-          //   },
-          //   // onChanged: (value) {
-          //   //   Variables.currentUser.scheduleName = value;
-          //   // },
-          // ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',
             decoration: const InputDecoration(
@@ -1118,18 +1087,6 @@ class Widgets {
               Variables.currentEvent.typeOfEvent = value;
             },
           ),
-          // TextFormField(
-          //   keyboardType: TextInputType.phone,
-          //   readOnly: !((Variables.selectedUser.role == 'admin') |
-          //   (Variables.selectedUser.name == Variables.currentUser.name)),
-          //   decoration: const InputDecoration(
-          //     labelText: 'Комментарий',
-          //   ),
-          //   initialValue: data['phoneNumber'],
-          //   onChanged: (value) {
-          //     Variables.currentUser.phoneNumber = value;
-          //   },
-          // ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',
             decoration: const InputDecoration(
@@ -1146,11 +1103,11 @@ class Widgets {
             children: [
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
-                  onPressed: () {
+                  onPressed: () async{
                     if (Variables.selectedUser.role == 'admin') {
-                      Events.deleteEvent(Variables.currentEvent.userName, event.id);
-                     // AlertDialogs.deleteAlertDialogUserScreen(context, index);
-                      //todo: alertdialog delete
+                      await AlertDialogs.deleteEventsScreen(context, Variables.currentEvent.userName,event.id);
+                    //  Events.deleteEvent(Variables.currentEvent.userName, event.id);
+
                     }
                   },
                   icon: const Icon(Icons.delete),
@@ -1159,32 +1116,15 @@ class Widgets {
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
                     if (Variables.selectedUser.role == 'admin') {
-                      //если админ, то сохраняем все поля пользователя, если не админ, то только номер телефона
                       Events.updateEvent(Variables.currentEvent.userName,Variables.currentEvent,event.id);
                       States.eventPressed='';}
                   },
                   icon: const Icon(Icons.save),
                   label: const Text('Сохранить   ')),
-              // ElevatedButton.icon(
-              //     style: ButtonStyles.headerButtonStyle,
-              //     onPressed: () async {
-              //       AlertDialogs.selectAlertDialogUserScreen(context, index);
-              //     },
-              //     icon: const Icon(Icons.adjust),
-              //     label: const Text('Выбрать   ')),
             ],
           )
         ],
       ),
     );
   }
-// static Widget eventsAlertDialogUserName(context, int index, name) {
-//   return
-//     Row(
-//       children: [
-//         ElevatedButton
-//         Text(users[index],style: const TextStyle(fontSize: 10.0)),
-//       ],
-//     );
-// }
 }
