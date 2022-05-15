@@ -59,7 +59,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 
 static Events initialEvent = Events(
-   'userName',
+   ['userName'],
    'eventName',
   DateTime.now(),
   DateTime.now(),

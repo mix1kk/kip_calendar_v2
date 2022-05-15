@@ -377,6 +377,7 @@ class AlertDialogs {
                                 eventsUserNameController.text =
                                     selectedUsers.toString();
                                 userNameTapped = !userNameTapped;
+                                Variables.currentEvent.userName = selectedUsers;
                                 setState(() {});
                               },
                               icon: const Icon(Icons.done),
@@ -497,7 +498,7 @@ class AlertDialogs {
 
                       if(!userNameTapped) {
                         await Events.addEvent(
-                          selectedUsers, Variables.initialEvent);
+                           Variables.initialEvent);
                         Navigator.of(context).pop();
                       }
 

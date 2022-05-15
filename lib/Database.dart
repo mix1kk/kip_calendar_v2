@@ -191,7 +191,7 @@ class Users {
 }
 
 class Events {
-  String userName;
+  List<String> userName;
   String event;
   DateTime startDate;
   DateTime endDate;
@@ -225,17 +225,14 @@ class Events {
 
 
     static Future addEvent(
-      List<String> userNames,
       Events newEvent
       ) async {
-      for (int i = 0; i < userNames.length; i++) {
+
           await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userNames[i])
               .collection('events')
               .doc()
               .set({
-            'userName':userNames[i],
+            'userName':newEvent.userName,
             //'userName': newEvent.userName,
             'event': newEvent.event,
             'startDate': newEvent.startDate,
@@ -246,21 +243,17 @@ class Events {
             'isDone': newEvent.isDone,
             'isVisible': newEvent.isVisible,
             'isExpanded' : newEvent.isExpanded
-          });
-      }
+      });
   }
   static Future updateEvent(
-      userName,
       Events newEvent,id
       ) async {
 
       await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userName)
           .collection('events')
           .doc(id)
           .update({
-        'userName':userName,
+        'userName': newEvent.userName,
         'event': newEvent.event,
         'startDate': newEvent.startDate,
         'endDate': newEvent.endDate,
@@ -288,8 +281,11 @@ class Events {
  //  }
 static  Events getEventFromSnapshot(DocumentSnapshot document)  {
     //чтение из базы данных
+  List<dynamic> use =
+  document.get('userName');
+  List<String> users = use.map((e)=>e.toString()).toList();
   Events event = Events(
-  document.get('userName'),
+      users,
   document.get('event'),
   document.get('startDate').toDate(),
   document.get('endDate').toDate(),
@@ -327,31 +323,31 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
   //   return listEvents;
   // }
 //
-  static Future getAllEventsToDate(DateTime date, List<String> names) async {
-    //чтение из базы данных
-   // Map<String, String>
-    List<Events> allEventsToDate = [];
-    for (int i = 0; i < names.length; i++) {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(names[i])
-          .collection('events')
-          .get()
-          .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-          if ((date.compareTo(doc.get('startDate').toDate()) >= 0) &&
-              (date.compareTo(doc.get('endDate').toDate()) <= 0)) {
-            //проверка входит ли кликнутая дата в диапазон дат события
-           // allEventsToDate.putIfAbsent(doc.id, () => doc.get('event'));
-            allEventsToDate.add(getEventFromSnapshot(doc));
-          }
-        });
-      });
-    }
-
-    return allEventsToDate;
-    // return name;
-  }
+//   static Future getAllEventsToDate(DateTime date, List<String> names) async {
+//     //чтение из базы данных
+//    // Map<String, String>
+//     List<Events> allEventsToDate = [];
+//     for (int i = 0; i < names.length; i++) {
+//       await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(names[i])
+//           .collection('events')
+//           .get()
+//           .then((QuerySnapshot querySnapshot) {
+//         querySnapshot.docs.forEach((doc) {
+//           if ((date.compareTo(doc.get('startDate').toDate()) >= 0) &&
+//               (date.compareTo(doc.get('endDate').toDate()) <= 0)) {
+//             //проверка входит ли кликнутая дата в диапазон дат события
+//            // allEventsToDate.putIfAbsent(doc.id, () => doc.get('event'));
+//             allEventsToDate.add(getEventFromSnapshot(doc));
+//           }
+//         });
+//       });
+// //     }
+//
+//     return allEventsToDate;
+//     // return name;
+//   }
 //
 //   static Future getAllEvents(List<String> names) async {
 //     //чтение из базы данных

@@ -227,10 +227,10 @@ class Widgets {
       ),
       //todo Выбор цвета кнопки в зависимости от наличия событий в эту дату
       onPressed: () async{
-        if (day is! String) {
-          listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
-          Navigator.pushNamed(context, '/calendarDay');
-        }
+        // if (day is! String) {
+        //   listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
+        //   Navigator.pushNamed(context, '/calendarDay');
+        // }
         //todo считывание всех ивентов для данного пользователя в кликнутую дату
         //        dialogOnMainScreen();
       },
@@ -853,16 +853,14 @@ class Widgets {
 
   static Widget eventsScreen(context) {
     Stream <QuerySnapshot> stream = FirebaseFirestore.instance
-        .collectionGroup('events')//.where('userName',isEqualTo: 'user')
+        .collection('events')//.where('userName',isEqualTo: 'user')
         .snapshots();
 
     //основная таблица  на экране Events
     return Expanded(
       child: StreamBuilder<QuerySnapshot>(
           stream: stream,
-          // FirebaseFirestore.instance
-          //     .collectionGroup('events').where('userName',isEqualTo: 'user')
-          //     .snapshots(),
+
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> events) {
 
             if (events.hasError) {
@@ -891,7 +889,6 @@ class Widgets {
                   ]);
                 });
             })
-          // }),
     );
   }
 
@@ -999,11 +996,11 @@ class Widgets {
                       .format(Variables.currentEvent.endDate);
                 }//для окрашивания выбранного ивента
                 newEvent.isExpanded = !newEvent.isExpanded;//для обновления экрана
-                 await Events.updateEvent(newEvent.userName, newEvent,event.id);//для обновления экрана
+                 await Events.updateEvent(newEvent,event.id);//для обновления экрана
               },
               child: ListTile(
                 title: Text(newEvent.event),
-                subtitle: Text(newEvent.userName),
+                subtitle: Text(newEvent.userName.toString()),
               ),
             )),
       ],
@@ -1116,7 +1113,7 @@ class Widgets {
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
                     if (Variables.selectedUser.role == 'admin') {
-                      Events.updateEvent(Variables.currentEvent.userName,Variables.currentEvent,event.id);
+                      Events.updateEvent(Variables.currentEvent,event.id);
                       States.eventPressed='';}
                   },
                   icon: const Icon(Icons.save),
