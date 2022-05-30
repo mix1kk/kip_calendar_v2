@@ -82,11 +82,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/calendar',
       routes: {
-        '/events': (context) =>  EventsScreen(),
+        '/events': (context) =>  EventsScreen(name: [Variables.selectedUser.name]),
         '/schedules': (context) =>  SchedulesScreen(),
         '/users': (context) => UsersScreen(),
         '/calendar': (context) => CalendarScreen(),
-        '/calendarDay': (context) => DayCalendarScreen(),
+//        '/calendarDay': (context) => DayCalendarScreen(),
       },
            theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -165,6 +165,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 // todo: баг: смотри начало следующего года, скрывается последняя неделя предыдущего, при сворачивании прошедших месяцев скрываются месяцы для каждого года
 //todo : добавить сортировку пользователей по параметрам
 //todo: вылетает ошибка при попытке загрузки несуществующего графика
-//todo: перенести ивенты в отдельную коллекцию
 //todo: сделать в каждом пользователе отдельный массив изменений в графике работы
 //todo: сделать отображение и сортировку событий
+//todo: привести к единому формату открытие и закрытие списка в именах и графиках

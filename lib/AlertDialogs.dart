@@ -161,7 +161,7 @@ class AlertDialogs {
                     onPressed: () async {
                       if (passwordController.text ==
                           Variables.currentUser.password) {
-                        Variables.setPrefs(Variables.currentUser.name);
+                        Variables.setSelectedUserNamePrefs(Variables.currentUser.name);
                         Variables.selectedUser = Variables.currentUser;
                         States.isNamePressed[index] =
                         !States.isNamePressed[index];
@@ -195,7 +195,7 @@ class AlertDialogs {
             builder: (context, setState) {
               return AlertDialog(
                 title:
-                Text('Удалить график ${Variables.currentSchedule.name}?'),
+                Text('Удалить график ${Variables.selectedSchedule.name}?'),
                 // content: Text(),
                 actions: [
                   TextButton(
@@ -207,10 +207,10 @@ class AlertDialogs {
                   TextButton(
                     child: const Text("Удалить"),
                     onPressed: () async {
-                      States.isSchedulePressed = List.filled(100, false);
+                     // States.isSchedulePressed = List.filled(100, false);
                       await Schedules.deleteSchedule(
-                          Variables.currentSchedule.name);
-                      Variables.currentSchedule.name = '0';
+                          Variables.selectedSchedule.name);
+                      Variables.selectedSchedule.name = '';
                       Navigator.pushNamedAndRemoveUntil(
                           context, '/schedules', (route) => false);
                     },
@@ -243,9 +243,10 @@ class AlertDialogs {
                   TextButton(
                     child: const Text("Удалить"),
                     onPressed: () async {
-                      await Events.deleteEvent(
-                          userName, id);
+                      await Events.deleteEvent(id);
                       States.eventPressed = '';
+                      Variables.allEvents.clear();
+                      Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
                       Navigator.pushNamedAndRemoveUntil(
                           context, '/events', (route) => false);
                     },
@@ -290,12 +291,16 @@ class AlertDialogs {
                       controller: eventsUserNameController,
                       onTap: () async {
                         users = await Users.getAllUsersNames();
+                        Variables.currentEvent.userName = selectedUsers;
                         userNameTapped = !userNameTapped;
                         setState(() {});
                       },
                     ),
                     SizedBox( //выбор пользователей для создания события
-                      height: userNameTapped ? Variables.rowHeight * 10 : 0.0,
+                      height: userNameTapped ? MediaQuery
+                          .of(context)
+                          .size
+                          .height/2 : 0.0,//todo
                       width: MediaQuery
                           .of(context)
                           .size
@@ -386,7 +391,7 @@ class AlertDialogs {
                       ),
                     ),
                     Container( //Данные события
-                      height: userNameTapped ? 0.0 : Variables.rowHeight * 10,
+                      height: userNameTapped ? 0.0 : Variables.rowHeight * 9,
                       padding: const EdgeInsets.all(2.0),
                       width: MediaQuery
                           .of(context)
@@ -499,6 +504,8 @@ class AlertDialogs {
                       if(!userNameTapped) {
                         await Events.addEvent(
                            Variables.initialEvent);
+                        Variables.allEvents.clear();
+                        Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
                         Navigator.of(context).pop();
                       }
 

@@ -8,7 +8,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
  class Variables{
    static double rowHeight = 40.0; // Высота строк
    static double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
-
+   static List<Events>allEvents=[];
   static Map<int,String> numbersForWorkingDays=
   {1: 'Я',
    2: 'Н',
@@ -20,16 +20,17 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    26:'В',
   };
   static Schedules currentSchedule=Schedules('0',List.filled(56, 26),false);
-  //todo: сделать selectedSchedule
-  static void setPrefs (name)async{
+  static Schedules selectedSchedule=Schedules('',List.filled(56, 26),false);
+  static void setSelectedUserNamePrefs (username)async{
    SharedPreferences prefs = await _prefs;
-   await prefs.setString('name',name);
+   await prefs.setString('name',username);
   }
 
   static Future <void> getPrefs ()async{//считывание сохраненных данных(имя пользователя, график)
    SharedPreferences prefs = await _prefs;
       Variables.selectedUser = (prefs.getString('name')==null)?Variables.currentUser:await Users.getUserByName(prefs.getString('name')!);
       currentSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
+      allEvents = await Events.getAllEventsForUser([Variables.selectedUser.name]);
     }
 
  static Users selectedUser = Users(//выбранный главным пользователь
@@ -91,8 +92,8 @@ class States{
  static bool isPulled = false;
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
- static List<bool> isSchedulePressed=List.filled(100, false);
- static List<bool> isEventPressed=List.filled(1000, false);
+ //static List<bool> isSchedulePressed=List.filled(100, false);
+// static List<bool> isEventPressed=List.filled(1000, false);
 static String eventPressed='';
 
 }

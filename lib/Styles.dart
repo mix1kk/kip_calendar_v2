@@ -8,7 +8,7 @@ import 'StatesAndVariables.dart';
 import 'Database.dart';
 
 class ButtonStyles {
-  static dayStyle(DateTime day, String callPlace) {
+  static dayStyle(DateTime day,List<int>schedule, String callPlace) {
     //вычисление окрашивания дня недели по дате и имени выбранного пользователя
     var style = ButtonStyles.simpleDayButtonStyle;
     if ((day.year == DateTime.now().year) &&
@@ -19,23 +19,38 @@ class ButtonStyles {
       style = ButtonStyles.currentDayButtonStyle;//проверка на текущий день и окрашивание его другим цветом
     } //todo сделать проверку на наличие событий и окрасить в соответсвующий цвет
     else {
-      if (Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)==1)//работа в день
-        {
-          style = ButtonStyles.workingDayButtonStyle;
-        }
+
+      if (Schedules.getWorkingDay(day, schedule)==1)//работа в день
+          {
+      style = ButtonStyles.workingDayButtonStyle;
+      }
       else
-      if(Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)==2)//работа в ночь
-      {style = ButtonStyles.workingNightButtonStyle;}
+      if(Schedules.getWorkingDay(day, schedule)==2)//работа в ночь
+          {style = ButtonStyles.workingNightButtonStyle;}
       else
       {
-        // if(){}
-        // else {
-          style = ButtonStyles.simpleDayButtonStyle;
-        // }//нерабочий день
+      // if(){}
+      // else {
+      style = ButtonStyles.simpleDayButtonStyle;
+      // }//нерабочий день
       }
-    }
+      for (int i=0;i<Variables.allEvents.length;i++) {
+        if(day.millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
+            day.millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
+        {style = ButtonStyles.monthEventsButtonStyle;}
+      }
+      }
+
     return style;
   }
+
+  static ButtonStyle monthEventsButtonStyle = ButtonStyle(
+      textStyle:
+      MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.all(0.0)));
 
   static ButtonStyle usersListButtonStyle = ButtonStyle(
       textStyle:

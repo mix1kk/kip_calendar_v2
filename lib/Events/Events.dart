@@ -10,8 +10,8 @@ import '../main.dart';
 import '../Database.dart';
 
 class EventsScreen extends StatefulWidget {
-  EventsScreen({Key? key}) : super(key: key);
-
+  EventsScreen({Key? key, required this.name}) : super(key: key);
+final List<String> name;
   @override
   State<EventsScreen> createState() => _EventsScreenState();
 }
@@ -42,7 +42,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       body: Column(
         children: [
-          Widgets.eventsScreen(context),
+          Widgets.eventsScreen(context,widget.name),
         ],
       ),
       floatingActionButton: FloatingActionButton(

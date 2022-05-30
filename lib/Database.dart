@@ -269,16 +269,6 @@ class Events {
 
 
 
- //
- // static  Stream <QuerySnapshot> eventsStream() async* {
- //   List<String> userList = await Users.getAllUsersNames();
- //        for (var i = 0 ; i< userList.length; i++) {
- //           QuerySnapshot querySnapshot = await FirebaseFirestore.instance
- //          .collectionGroup('events')
- //          .get();
- //            yield querySnapshot;
- //         }
- //  }
 static  Events getEventFromSnapshot(DocumentSnapshot document)  {
     //чтение из базы данных
   List<dynamic> use =
@@ -298,108 +288,74 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
     return event;
   }
 
-  // static Future  getEventsToDate(List<String> userNames, DateTime day) async {
-  //   //чтение из базы данных
-  //   List<Events> listEvents=[];
-  //   Events event=Variables.initialEvent;
-  //   for(int i=0;i<userNames.length; i++) {
-  //     await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(userNames[i])
-  //       .collection('events')
-  //       // .doc(eventId)
-  //       // .collectionGroup('events').
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot) {
-  //     event.event = documentSnapshot.get('event');
-  //     event.startDate = documentSnapshot.get('startDate').toDate();
-  //     event.endDate = documentSnapshot.get('endDate').toDate();
-  //     event.dateOfNotification = documentSnapshot.get('dateOfNotification').toDate();
-  //     event.typeOfEvent = documentSnapshot.get('typeOfEvent');
-  //     event.comment = documentSnapshot.get('comment');
-  //     event.isDone = documentSnapshot.get('isDone');
-  //   });
-  //   }
-  //   return listEvents;
-  // }
-//
-//   static Future getAllEventsToDate(DateTime date, List<String> names) async {
-//     //чтение из базы данных
-//    // Map<String, String>
-//     List<Events> allEventsToDate = [];
-//     for (int i = 0; i < names.length; i++) {
-//       await FirebaseFirestore.instance
-//           .collection('users')
-//           .doc(names[i])
-//           .collection('events')
-//           .get()
-//           .then((QuerySnapshot querySnapshot) {
-//         querySnapshot.docs.forEach((doc) {
-//           if ((date.compareTo(doc.get('startDate').toDate()) >= 0) &&
-//               (date.compareTo(doc.get('endDate').toDate()) <= 0)) {
-//             //проверка входит ли кликнутая дата в диапазон дат события
-//            // allEventsToDate.putIfAbsent(doc.id, () => doc.get('event'));
-//             allEventsToDate.add(getEventFromSnapshot(doc));
-//           }
-//         });
-//       });
-// //     }
-//
-//     return allEventsToDate;
-//     // return name;
-//   }
-//
-//   static Future getAllEvents(List<String> names) async {
-//     //чтение из базы данных
-//     allEventsStartDates.clear();
-//     allEventsEndDates.clear();
-//     for (int i = 0; i < names.length; i++) {
-//       await FirebaseFirestore.instance
-//           .collection('users')
-//           .doc(names[i])
-//           .collection('events')
-//           .get()
-//           .then((QuerySnapshot querySnapshot) {
-//         querySnapshot.docs.forEach((doc) {
-//           allEvents.add(doc.get('event'));
-//           allEventsStartDates.add(doc.get('startDate').toDate());
-//           allEventsEndDates.add(doc.get('endDate').toDate());
-//         });
-//       });
-//     }
-//   }
-//
-  static Future deleteEvent(String userName, String id) async {
+  static  getEventsToDate(List<Events> events, DateTime day)  {
+    List<Events> listEvents=[];
+    for(int i=0;i<events.length; i++) {
+      if(day.millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
+          day.millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch){
+        listEvents.add(events[i]);
+      }
+    }
+    return listEvents;
+  }
+
+  static Future getAllEventsForUser(List<String> names) async {
+    //чтение из базы данных
+   // Map<String, String>
+    List<Events> allEvents = [];
+    for (int i = 0; i < names.length; i++) {
+      await FirebaseFirestore.instance
+          .collection('events')
+          .where('userName',arrayContains: names[i])
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+            allEvents.add(getEventFromSnapshot(doc));
+        });
+      });
+    }
+
+    return allEvents;
+    // return name;
+  }
+
+  static Future getAllEvents() async {
+    //чтение из базы данных
+ List<Events> list=[];
+      await FirebaseFirestore.instance
+          .collection('events')
+          .get()
+          .then((QuerySnapshot querySnapshot) {
+        querySnapshot.docs.forEach((doc) {
+          list.add(getEventFromSnapshot(doc));
+        });
+      });
+      return list;
+  }
+
+  static Future deleteEvent(String id) async {
     //удаление события из базы данных
     await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userName)
         .collection('events')
         .doc(id)
         .delete();
 
   }
   static Future deleteAllEvents() async {//todo: не забыть убрать эту функцию
-    List<String> userList =  await Users.getAllUsersNames();
     //удаление всех событий из базы данных
-    for (int i = 0; i < userList.length; i++) {
       await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userList[i])
           .collection('events')
           .get()
          .then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.forEach((doc) {
            FirebaseFirestore.instance
-              .collection('users')
-              .doc(userList[i])
               .collection('events')
                .doc(doc.id)
                .delete();
         });
 
         });
-         }
+
 
 
   }
