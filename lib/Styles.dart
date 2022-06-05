@@ -34,23 +34,23 @@ class ButtonStyles {
       style = ButtonStyles.simpleDayButtonStyle;
       // }//нерабочий день
       }
-      for (int i=0;i<Variables.allEvents.length;i++) {
-        if(day.millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
-            day.millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
-        {style = ButtonStyles.monthEventsButtonStyle;}
-      }
+      // for (int i=0;i<Variables.allEvents.length;i++) {
+      //   if(day.millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
+      //       day.millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
+      //   {style = ButtonStyles.monthEventsButtonStyle;}//определение ивента в текущий день и окрашивание в цвет ивента
+      // }
       }
 
     return style;
   }
 
-  static ButtonStyle monthEventsButtonStyle = ButtonStyle(
-      textStyle:
-      MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
-      backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
-      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-          const EdgeInsets.all(0.0)));
+  // static ButtonStyle monthEventsButtonStyle = ButtonStyle(
+  //     textStyle:
+  //     MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+  //     backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrangeAccent),
+  //     foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+  //     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+  //         const EdgeInsets.all(0.0)));
 
   static ButtonStyle usersListButtonStyle = ButtonStyle(
       textStyle:
@@ -60,29 +60,32 @@ class ButtonStyles {
       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
           const EdgeInsets.all(1.0)));
 
-  static ButtonStyle dayEventsButtonStyle = ButtonStyle(
-      textStyle:
-          MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
-      backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
-      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-          const EdgeInsets.all(0.0)));
+  // static ButtonStyle dayEventsButtonStyle = ButtonStyle(
+  //     textStyle:
+  //         MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+  //     backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+  //     foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+  //     padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+  //         const EdgeInsets.all(0.0)));
   static ButtonStyle workingNightButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
       textStyle:
       MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
-      backgroundColor: MaterialStateProperty.all<Color>(Colors.black26),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.black45),
       foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
           const EdgeInsets.all(0.0)));
   static ButtonStyle workingDayButtonStyle = ButtonStyle(
+    elevation: MaterialStateProperty.all(0.0),
       textStyle:
           MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
-      backgroundColor: MaterialStateProperty.all<Color>(Colors.black26),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.black45),
       foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
           const EdgeInsets.all(0.0)));
 
   static ButtonStyle currentDayButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
       textStyle:
           MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
       backgroundColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
@@ -91,6 +94,7 @@ class ButtonStyles {
           const EdgeInsets.all(0.0)));
 
   static ButtonStyle headerButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
       textStyle:
           MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
       backgroundColor: MaterialStateProperty.all<Color>(Colors.blueGrey),
@@ -98,16 +102,17 @@ class ButtonStyles {
       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
           const EdgeInsets.all(0.0)));
   static ButtonStyle simpleDayButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
       textStyle:
           MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
-      backgroundColor: MaterialStateProperty.all<Color>(Colors.white24),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.black26),
       foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
           const EdgeInsets.all(0.0)));
   static ButtonStyle fadedDayButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
       textStyle:
           MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 12)),
-      elevation: MaterialStateProperty.all(0.0),
       backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
       foregroundColor: MaterialStateProperty.all<Color>(Colors.grey),
       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(

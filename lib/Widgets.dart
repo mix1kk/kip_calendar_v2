@@ -1,18 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kip_calendar_v2/AlertDialogs.dart';
+import 'Schedules/Widgets/SchedulesWidgets.dart';
 import 'StatesAndVariables.dart';
 import 'Database.dart';
 import 'Styles.dart';
 import 'package:intl/intl.dart';
-
-final TextEditingController dateOfBirthController = TextEditingController();
-final TextEditingController dateOfEmploymentController = TextEditingController();
-final TextEditingController scheduleNameController = TextEditingController();
-final TextEditingController startDateEventController = TextEditingController();
-final TextEditingController endDateEventController = TextEditingController();
-final TextEditingController dateOfNotificationEventController = TextEditingController();
-
 
 class Widgets {
   static getNumberOfWeek(DateTime day) {
@@ -131,19 +124,29 @@ class Widgets {
 
   static List<Widget> weekCalendarMonthScreen(
       List<dynamic> week, context, String callPlace) {
-
+    bool isEvent = false;
     //7 дней недели в строке на экране CalendarMonthScreen
     List<Widget> widgets = [];
     var style =
         ButtonStyles.simpleDayButtonStyle; //инициализация переменной style
     for (int day = 0; day < 7; day++) {
+
       if (week[0] is! String) {
+
         if (States.isLastWeek) {
           //проверка является ли текущая неделя последней в месяце
           if (week[day].month != week[0].month && callPlace == 'main') {
             //отрисовка затемненных дней следующего месяца в последней неделе текущего месяца, если вызвано с главного экрана
             style = ButtonStyles.fadedDayButtonStyle;
           } else {
+
+            for (int i=0;i<Variables.allEvents.length;i++) {
+              if(week[day].millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
+                  week[day].millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
+              {isEvent=true;}//определение ивента в текущий день и окрашивание в цвет ивента
+            }
+
+
             style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
                 callPlace); // раскрашивание дней в соответствии с графиком
           }
@@ -152,23 +155,41 @@ class Widgets {
             //отрисовка затемненных дней предыдущего месяца в первой неделе текущего месяца, если вызвано с главного экрана
             style = ButtonStyles.fadedDayButtonStyle;
           } else {
+
+            for (int i=0;i<Variables.allEvents.length;i++) {
+              if(week[day].millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
+                  week[day].millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
+              {isEvent=true;}//определение ивента в текущий день для окрашивания рамки в цвет ивента
+            }
+
+
             style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
                 callPlace); // раскрашивание дней в соответствии с графиком
           }
         }
       }
+
       widgets.add(
         Container(
-          padding: const EdgeInsets.fromLTRB(2.0, 1.0, 2.0, 3.0),
+          padding: const EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
+          decoration: isEvent?  BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(5)),
+              color: Colors.orangeAccent,
+              border: Border.all(color: Colors.white)
+          ):  BoxDecoration(
+          //  color: Colors.white,
+             border: Border.all(color: Colors.white),
+          ),
           width:
               (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
                   7,
           height: Variables.rowHeight,
           child: (callPlace == 'main')
               ? dayCalendarMonthScreen(week[day], style, context)
-              : dayCalendarScheduleScreen(week[day], style, context),
+              : SchedulesWidgets.dayCalendarScheduleScreen(week[day], style, context),
         ),
       );
+      isEvent=false;
     }
     States.isLastWeek = false;
     return widgets;
@@ -190,7 +211,17 @@ class Widgets {
               day, Variables.currentSchedule.schedule)]!;
 //Обозначение дня по ТК
     }
-    return ElevatedButton(
+    return
+      Container( // внутренний контейнер для исключения смешивания цвета внешнего контейнера и кнопки
+        decoration:   BoxDecoration(
+            color: Colors.white,
+            border: Border.all(
+              color: Colors.transparent,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(5))
+        ),
+        child:
+      ElevatedButton(
       style: (day
               is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
           ? ButtonStyles.headerButtonStyle
@@ -243,829 +274,8 @@ class Widgets {
         //todo считывание всех ивентов для данного пользователя в кликнутую дату
         //        dialogOnMainScreen();
       },
-    );
-  }
-  //
-  // static Widget mainBodyCalendarDayScreen(DateTime day, context) {
-  //   //основная таблица  на экране CalendarDayScreen
-  //   return Expanded(
-  //     // child: RefreshIndicator(
-  //     //   onRefresh: pullRefresh,
-  //     child: ListView.builder(
-  //         itemCount: 12,
-  //         itemBuilder: (context, index) {
-  //           return Column(children: [
-  //             SizedBox(
-  //               height: Variables.rowHeight,
-  //               child:
-  //                   rowCalendarDayScreen(Variables.eventsDay, context, index),
-  //               //построение основной таблицы строка за строкой
-  //             ),
-  //           ]);
-  //         }),
-  //     // ),
-  //   );
-  // }
-  //
-  // static Widget rowCalendarDayScreen(
-  //     //Строка на экране CalendarDayScreen
-  //     Map<DateTime, String> eventsDay,
-  //     context,
-  //     index) {
-  //   String time1 = ('${eventsDay.keys.elementAt(index).hour} '
-  //       ':'
-  //       ' ${eventsDay.keys.elementAt(index).minute}');
-  //   String time2 = ('${eventsDay.keys.elementAt(index + 12).hour} '
-  //       ':'
-  //       ' ${eventsDay.keys.elementAt(index + 12).minute}');
-  //   return Row(
-  //     children: [
-  //       Container(
-  //         decoration: BoxDecoration(
-  //           border: Border.all(),
-  //         ),
-  //         padding: const EdgeInsets.all(0.0),
-  //         height: Variables.rowHeight,
-  //         width: MediaQuery.of(context).size.width / 2,
-  //         child: Row(children: [
-  //           Container(
-  //             padding: const EdgeInsets.all(3.0),
-  //             width: Variables.firstColumnWidth,
-  //             child: ElevatedButton(
-  //               style: ButtonStyles.headerButtonStyle,
-  //               onPressed: () {},
-  //               child: Text(time1, style: const TextStyle(fontSize: 12)),
-  //             ),
-  //           ),
-  //           SizedBox(
-  //             width: MediaQuery.of(context).size.width / 2 -
-  //                 Variables.firstColumnWidth -
-  //                 2,
-  //             child: ElevatedButton(
-  //               style: ButtonStyles.dayEventsButtonStyle,
-  //               onPressed: () {
-  //                 //добавить событие
-  //               },
-  //               child: Text(eventsDay.values.elementAt(index)),
-  //             ),
-  //           ),
-  //         ]),
-  //       ),
-  //       Container(
-  //         decoration: BoxDecoration(
-  //           border: Border.all(),
-  //         ),
-  //         padding: const EdgeInsets.all(0.0),
-  //         height: Variables.rowHeight,
-  //         width: MediaQuery.of(context).size.width / 2,
-  //         child: Row(children: [
-  //           Container(
-  //             padding: const EdgeInsets.all(3.0),
-  //             width: Variables.firstColumnWidth,
-  //             child: ElevatedButton(
-  //               style: ButtonStyles.headerButtonStyle,
-  //               onPressed: () {},
-  //               child: Text(time2, style: const TextStyle(fontSize: 12)),
-  //             ),
-  //           ),
-  //           SizedBox(
-  //             width: MediaQuery.of(context).size.width / 2 -
-  //                 Variables.firstColumnWidth -
-  //                 2,
-  //             child: ElevatedButton(
-  //               style: ButtonStyles.dayEventsButtonStyle,
-  //               onPressed: () {
-  //                 //добавить событие
-  //               },
-  //               child: Text(eventsDay.values.elementAt(index + 12)),
-  //             ),
-  //           ),
-  //         ]),
-  //       )
-  //     ],
-  //   );
-  // }
-
-  static Widget usersScreen(DateTime day, context) {
-    final Stream<QuerySnapshot> _usersStream =
-        FirebaseFirestore.instance.collection('users').snapshots();
-    //основная таблица  на экране UsersScreen
-    return Expanded(
-      // child: RefreshIndicator(
-      //   onRefresh: pullRefresh,
-      child: StreamBuilder<QuerySnapshot>(
-          stream: _usersStream,
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            int number = 0;
-            if (snapshot.hasError) {
-              return const Text('Что-то пошло не так');
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-              //const Text("Loading");
-            }
-            return ListView(
-              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                number++;
-                Map<String, dynamic> data =
-                    document.data()! as Map<String, dynamic>;
-                return Column(children: [
-                  SizedBox(
-                    height: Variables.rowHeight * 2,
-                    child: usersMainScreenName(context, number, data),
-                    //заголовок пользователя в списке пользователей
-                  ),
-                  SizedBox(
-                    height: States.isNamePressed[number]
-                        ? Variables.rowHeight * 17
-                        : 0.0,
-                    child: usersMainScreenData(context, number, data),
-                    //данные пользователя в списке пользователей
-                  ),
-                ]);
-              }).toList(),
-            );
-          }),
-    );
-  }
-
-  static Widget usersMainScreenName(context, int index, data) {
-    return Row(
-      children: [
-        Container(
-            padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
-            width: Variables.firstColumnWidth,
-            child: ElevatedButton(
-              style: ButtonStyles.headerButtonStyle,
-              onPressed: () {},
-              child: Text('$index'),
-            )),
-        Container(
-            padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
-            width:
-                MediaQuery.of(context).size.width - Variables.firstColumnWidth,
-            child: ElevatedButton(
-              style: (Variables.selectedUser.name == data['name'])
-                  ? ButtonStyles.headerButtonStyle
-                  : ButtonStyles.usersListButtonStyle,
-              onPressed: () {
-                Variables.currentUser = Users(
-                  data['name'],
-                  data['password'],
-                  data['tableNumber'],
-                  data['position'],
-                  data['dateOfBirth'].toDate(),
-                  data['dateOfEmployment'].toDate(),
-                  data['scheduleName'],
-                  data['unit'],
-                  data['phoneNumber'],
-                  data['role'],
-                  !data['isExpanded'],
-                );
-                dateOfBirthController.text =
-                    DateFormat.yMd().format(Variables.currentUser.dateOfBirth);
-                dateOfEmploymentController.text = DateFormat.yMd()
-                    .format(Variables.currentUser.dateOfEmployment);
-                scheduleNameController.text = data['scheduleName'];
-
-                if (States.isNamePressed[index]) {
-                  States.isNamePressed = List.filled(250, false);
-                } else {
-                  States.isNamePressed = List.filled(250, false);
-                  States.isNamePressed[index] = !States.isNamePressed[index];
-                }
-                Users.addUser(//сделано для обновления экрана
-                    Variables.currentUser);
-              },
-              child: ListTile(
-                title: Text(data['name']),
-                subtitle: Text(data['position']),
-              ),
-            )),
-      ],
-    );
-  }
-
-  static Widget usersMainScreenData(context, index, Map<String, dynamic> data) {
-    //полные данные пользователей
-    return Container(
-      padding: const EdgeInsets.all(2.0),
-      // height: States.isNamePressed[number] ? rowHeight * 15 : 0.0,
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'ФИО',
-            ),
-            readOnly: Variables.selectedUser.role != 'admin',
-            initialValue: data['name'],
-            onChanged: (value) {
-              Variables.currentUser.name = value;
-            },
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Пароль',
-            ),
-            obscureText: Variables.selectedUser.role != 'admin',
-            obscuringCharacter: '*',
-            initialValue: data['password'],
-            onChanged: (value) {
-              Variables.currentUser.password = value;
-            },
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Табельный номер',
-            ),
-            initialValue: data['tableNumber'],
-            onChanged: (value) {
-              Variables.currentUser.tableNumber = value;
-            },
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Должность',
-            ),
-            initialValue: data['position'],
-            onChanged: (value) {
-              Variables.currentUser.position = value;
-            },
-          ),
-          TextFormField(
-            controller: dateOfBirthController,
-            readOnly: true,
-            //Variables.selectedUser.role != 'admin',
-            onTap: () async {
-              if (Variables.selectedUser.role == 'admin') {
-                Variables.currentUser.dateOfBirth =
-                    await AlertDialogs.selectDate(
-                        Variables.currentUser.dateOfBirth, context);
-                dateOfBirthController.text =
-                    DateFormat.yMd().format(Variables.currentUser.dateOfBirth);
-              }
-            },
-            decoration: const InputDecoration(
-              labelText: 'Дата рождения',
-            ),
-          ),
-          TextFormField(
-            controller: dateOfEmploymentController,
-            readOnly: true,
-            onTap: () async {
-              if (Variables.selectedUser.role == 'admin') {
-                Variables.currentUser.dateOfEmployment =
-                    await AlertDialogs.selectDate(
-                        Variables.currentUser.dateOfEmployment, context);
-                dateOfEmploymentController.text = DateFormat.yMd()
-                    .format(Variables.currentUser.dateOfEmployment);
-                //    FocusManager.instance.primaryFocus?.unfocus();
-              }
-            },
-            decoration: const InputDecoration(
-              labelText: 'Дата трудоустройства',
-            ),
-          ),
-          TextFormField(
-            readOnly: true,
-            controller: scheduleNameController,
-            decoration: const InputDecoration(
-              labelText: 'График',
-            ),
-            //initialValue: data['scheduleName'],
-            //  initialValue: Variables.currentUser.scheduleName,
-            onTap: () {
-              if (Variables.selectedUser.role == 'admin') {
-                Navigator.pushNamed(context, '/schedules');
-              }
-            },
-            // onChanged: (value) {
-            //   Variables.currentUser.scheduleName = value;
-            // },
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Подразделение',
-            ),
-            initialValue: data['unit'],
-            onChanged: (value) {
-              Variables.currentUser.unit = value;
-            },
-          ),
-          TextFormField(
-            keyboardType: TextInputType.phone,
-            readOnly: !((Variables.selectedUser.role == 'admin') |
-                (Variables.selectedUser.name == Variables.currentUser.name)),
-            decoration: const InputDecoration(
-              labelText: 'Номер телефона',
-            ),
-            initialValue: data['phoneNumber'],
-            onChanged: (value) {
-              Variables.currentUser.phoneNumber = value;
-            },
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Уровень доступа',
-            ),
-            initialValue: data['role'],
-            onChanged: (value) {
-              Variables.currentUser.role = value;
-            },
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () {
-                    if (Variables.selectedUser.role == 'admin') {
-                      AlertDialogs.deleteAlertDialogUserScreen(context, index);
-                    }
-                  },
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Удалить   ')),
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () {
-                    if (Variables.selectedUser.role == 'admin') {
-                      //если админ, то сохраняем все поля пользователя, если не админ, то только номер телефона
-                      Users.addUser(Variables.currentUser);
-                    } else {
-                      Users.addUser(Users(
-                        data['name'],
-                        data['password'],
-                        data['tableNumber'],
-                        data['position'],
-                        data['dateOfBirth'].toDate(),
-                        data['dateOfEmployment'].toDate(),
-                        data['scheduleName'],
-                        data['unit'],
-                        Variables.currentUser.phoneNumber,
-                        data['role'],
-                        !data['isExpanded'],
-                      ));
-                    }
-                  },
-                  icon: const Icon(Icons.save),
-                  label: const Text('Сохранить   ')),
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () async {
-                    AlertDialogs.selectAlertDialogUserScreen(context, index);
-                  },
-                  icon: const Icon(Icons.adjust),
-                  label: const Text('Выбрать   ')),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  static Widget schedulesScreen(context) {
-    // final Stream<QuerySnapshot> _schedulesStream =
-    //     FirebaseFirestore.instance.collection('schedules').snapshots();
-    //основная таблица  на экране UsersScreen
-    return Expanded(
-      // child: RefreshIndicator(
-      //   onRefresh: pullRefresh,
-      child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance.collection('schedules').snapshots(),
-          builder:
-              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-            int number = 0;
-            if (snapshot.hasError) {
-              return const Text('Что-то пошло не так');
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return ListView(
-              children: snapshot.data!.docs.map((DocumentSnapshot document) {
-                number++;
-                Map<String, dynamic> data =
-                    document.data()! as Map<String, dynamic>;
-                return Column(children: [
-                  SizedBox(
-                    height: Variables.rowHeight * 2,
-                    child: schedulesMainScreenName(context, number, data),
-                    //заголовок пользователя в списке пользователей
-                  ),
-                  SizedBox(
-                    height: Variables.selectedSchedule.name==data['name']
-                        ? Variables.rowHeight * 12
-                        : 0.0,
-                    child: schedulesMainScreenData(context, number, data),
-                    //данные пользователя в списке пользователей
-                  ),
-                ]);
-              }).toList(),
-            );
-          }),
-    );
-  }
-
-  static Widget schedulesMainScreenName(context, int index, data) {
-    return Row(
-      children: [
-        Container(
-            padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
-            width: Variables.firstColumnWidth,
-            child: ElevatedButton(
-              style: ButtonStyles.headerButtonStyle,
-              onPressed: () {},
-              child: Text('$index'),
-            )),
-        Container(
-            padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
-            width:
-                MediaQuery.of(context).size.width - Variables.firstColumnWidth,
-            child: ElevatedButton(
-              style: (Variables.currentSchedule.name == data['name'])
-                  ? ButtonStyles.headerButtonStyle
-                  : ButtonStyles.usersListButtonStyle,
-              onPressed: () {
-                if (Variables.selectedSchedule.name==data['name']) {
-                  Variables.selectedSchedule.name='';
-                } else {
-                 // Variables.selectedSchedule.name=data['name'];
-                  Variables.selectedSchedule = Schedules(data['name'],
-                      data['schedule'].cast<int>(), !data['isExpanded']);
-                }
-                print(Variables.selectedSchedule.name);
-                Schedules.addSchedule(
-                    //сделано для обновления экрана
-                    data['name'],
-                    data['schedule'].cast<int>(),
-                    !data['isExpanded']);
-              },
-              child: ListTile(
-                title: Text(data['name']),
-              ),
-            )),
-      ],
-    );
-  }
-
-  static Widget schedulesMainScreenData(
-      context, index, Map<String, dynamic> data) {
-    //полные данные пользователей
-    return Container(
-      padding: const EdgeInsets.all(0.0),
-      // height: States.isNamePressed[number] ? rowHeight * 15 : 0.0,
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Название графика',
-            ),
-            readOnly: Variables.selectedUser.role != 'admin',
-            initialValue: data['name'],
-            onChanged: (value) {
-              Variables.selectedSchedule.name = value;
-            },
-          ),
-
-          Container(
-              width: MediaQuery.of(context).size.width,
-              child: Column(
-                children: schedulesMainScreenDataSample(
-                    context, Variables.selectedSchedule.schedule),
-              )),
-          //todo schedule
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () {
-                    if (Variables.selectedUser.role == 'admin') {
-                      AlertDialogs.deleteAlertDialogSchedulesScreen(
-                          context, index);
-                    }
-                  },
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Удалить   ')),
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () async {
-                    if (Variables.selectedUser.role == 'admin') {
-                      await Schedules.addSchedule(
-                          Variables.selectedSchedule.name,
-                          Variables.selectedSchedule.schedule,
-                          !Variables.selectedSchedule.isExpanded);
-                   //   Variables.currentSchedule.name = '0';
-                    //  States.isSchedulePressed = List.filled(100, false);
-                      Navigator.pushNamed(context, '/schedules');
-                    }
-                  },
-                  icon: const Icon(Icons.save),
-                  label: const Text('Сохранить   ')),
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () {
-                    Variables.currentUser.scheduleName =
-                        Variables.selectedSchedule.name;
-                    Variables.currentSchedule=Variables.selectedSchedule;
-                    scheduleNameController.text =
-                        Variables.currentSchedule.name;
-                   // States.isSchedulePressed = List.filled(100, false);
-                    Navigator.pushNamed(context, '/users');
-                  },
-                  icon: const Icon(Icons.adjust),
-                  label: const Text('Выбрать   ')),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  static List<Widget> schedulesMainScreenDataSample(
-      context, List<int> schedule) {
-    //отрисовка 8 недель на экране графиков для отображения графика
-    List<Widget> weekWidgets = [];
-    DateTime currentDay = DateTime.now();
-    for (int week = 0; week < 8; week++) {
-      currentDay = currentDay.add(Duration(days: 7 * week));
-      weekWidgets.add(
-        rowCalendarMonthScreen(getNumberOfWeek(currentDay).toString(),
-            getWeekDays(currentDay), context, 'schedules'),
-      );
-      currentDay = DateTime.now();
-    }
-    return weekWidgets;
-  }
-
-  static Widget dayCalendarScheduleScreen(day, style, context) {
-    return StatefulBuilder(builder: (context, setState) {
-      return ElevatedButton(
-          style: style,
-          child: Column(
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    DateFormat.d().format(day),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 13,
-                child: Text(
-                  DateFormat.MMM().format(day),
-                  style: const TextStyle(fontSize: 9),
-                ),
-              ),
-            ],
-          ),
-          onPressed: () {
-            int number = day
-                    .difference(
-                        DateTime(2022).subtract(const Duration(days: 5)))
-                    .inDays %
-                56; //какой по счету день из 56 занимает текущий обрабатываемый
-            if (Variables.currentSchedule.schedule[number] == 1) {
-              Variables.currentSchedule.schedule[number] = 2;
-            } else if (Variables.currentSchedule.schedule[number] == 2) {
-              Variables.currentSchedule.schedule[number] = 26;
-            } else if (Variables.currentSchedule.schedule[number] == 26) {
-              Variables.currentSchedule.schedule[number] = 1;
-            }
-            style = ButtonStyles.dayStyle(day,Variables.currentSchedule.schedule, 'schedules');
-            setState(() {});
-          }
-          //        dialogOnMainScreen();
-          );
-    });
-  }
-
-
-
-  static Widget eventsScreen(context,List<String> name) {
-    Stream <QuerySnapshot> stream = FirebaseFirestore.instance
-        .collection('events')//.where('userName',arrayContainsAny: name)
-        .snapshots();
-
-    //основная таблица  на экране Events
-    return Expanded(
-      child: StreamBuilder<QuerySnapshot>(
-          stream: stream,
-
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> events) {
-
-            if (events.hasError) {
-              return const Text('Что-то пошло не так');
-            }
-
-            if (events.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-              //const Text("Loading");
-            }
-              return ListView.builder(
-                itemCount: events.data!.docs.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Column(children: [
-                    eventsMainScreenName(
-                        context,
-                        index,
-                        events.data!.docs[index],
-                    ),
-                    SizedBox(
-                      height:
-                      (events.data!.docs[index].id == States.eventPressed )? Variables.rowHeight * 11 : 0.0,
-                      child: eventsMainScreenData(context,
-                      events.data!.docs[index],),
-                    ),
-                  ]);
-                });
-            })
-    );
-  }
-
-
-
-  static Widget eventsMainScreenName(context, int index, DocumentSnapshot event) {//построение списка с названиями событий для всех пользователей
-      Events newEvent = Events.getEventFromSnapshot(event);
-    return Row(
-      children: [
-        Container(
-            padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
-            width: Variables.firstColumnWidth,
-            child: ElevatedButton(
-              style: ButtonStyles.headerButtonStyle,
-              onPressed: () {},
-              child: Text('${index + 1}'),
-            )),
-        Container(
-            padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
-            width:
-                MediaQuery.of(context).size.width - Variables.firstColumnWidth,
-            child: ElevatedButton(
-              style: (event.id == States.eventPressed)?ButtonStyles.headerButtonStyle:ButtonStyles.usersListButtonStyle,
-              onPressed: () async{
-                if (event.id == States.eventPressed)
-                 { States.eventPressed='';
-                 Variables.currentEvent = Variables.initialEvent;
-                }
-                else {
-                  States.eventPressed=event.id;
-                  Variables.currentEvent = newEvent;
-                  startDateEventController.text =
-                      DateFormat.yMd().format(Variables.currentEvent.startDate);
-                  dateOfNotificationEventController.text = DateFormat.yMd()
-                      .format(Variables.currentEvent.dateOfNotification);
-                  endDateEventController.text = DateFormat.yMd()
-                      .format(Variables.currentEvent.endDate);
-                }//для окрашивания выбранного ивента
-                newEvent.isExpanded = !newEvent.isExpanded;//для обновления экрана
-                 await Events.updateEvent(newEvent,event.id);//для обновления экрана
-              },
-              child: ListTile(
-                title: Text(newEvent.event),
-                subtitle: Text(newEvent.userName.toString()),
-              ),
-            )),
-      ],
-    );
-  }
-  static Widget eventsMainScreenData(context, DocumentSnapshot event) {
-    //полные данные пользователей
-    return Container(
-      padding: const EdgeInsets.all(2.0),
-      width: MediaQuery.of(context).size.width,
-      child: Column(
-        children: [
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Название события',
-            ),
-            initialValue: Variables.currentEvent.event,
-            onChanged: (value) {
-              Variables.currentEvent.event = value;
-            },
-          ),
-          TextFormField(
-            controller: startDateEventController,
-            readOnly: true,
-            onTap: () async {
-              if (Variables.selectedUser.role == 'admin') {
-                Variables.currentEvent.startDate =
-                await AlertDialogs.selectDate(
-                    Variables.currentEvent.startDate, context);
-                startDateEventController.text =
-                    DateFormat.yMd().format(Variables.currentEvent.startDate);
-              }
-            },
-            decoration: const InputDecoration(
-              labelText: 'Дата начала события',
-            ),
-          ),
-          TextFormField(
-            controller: endDateEventController,
-            readOnly: true,
-            onTap: () async {
-              if (Variables.selectedUser.role == 'admin') {
-                Variables.currentEvent.endDate =
-                await AlertDialogs.selectDate(
-                    Variables.currentEvent.endDate, context);
-                endDateEventController.text = DateFormat.yMd()
-                    .format(Variables.currentEvent.endDate);
-                //    FocusManager.instance.primaryFocus?.unfocus();
-              }
-            },
-            decoration: const InputDecoration(
-              labelText: 'Дата окончания события',
-            ),
-          ),
-
-          TextFormField(
-            controller: dateOfNotificationEventController,
-            readOnly: true,
-            onTap: () async {
-              if (Variables.selectedUser.role == 'admin') {
-                Variables.currentEvent.dateOfNotification =
-                await AlertDialogs.selectDate(
-                    Variables.currentEvent.dateOfNotification, context);
-                dateOfNotificationEventController.text = DateFormat.yMd()
-                    .format(Variables.currentEvent.dateOfNotification);
-                //    FocusManager.instance.primaryFocus?.unfocus();
-              }
-            },
-            decoration: const InputDecoration(
-              labelText: 'Дата напоминания',
-            ),
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Тип события',
-            ),
-            initialValue: Variables.currentEvent.typeOfEvent,
-            onChanged: (value) {
-              Variables.currentEvent.typeOfEvent = value;
-            },
-          ),
-          TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
-            decoration: const InputDecoration(
-              labelText: 'Комментарий',
-            ),
-            initialValue: Variables.currentEvent.comment,
-            onChanged: (value) {
-              Variables.currentEvent.comment = value;
-            },
-          ),
-          //todo: сделать флаг "задание выполнено"
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () async{
-                    if (Variables.selectedUser.role == 'admin') {
-                      await AlertDialogs.deleteEventsScreen(context, Variables.currentEvent.userName,event.id);
-                      Variables.allEvents.clear();
-                      Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
-                    //  Events.deleteEvent(Variables.currentEvent.userName, event.id);
-//todo:добавить уведомление о недостаточности прав , если не админ
-                    }
-                  },
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Удалить   ')),
-              ElevatedButton.icon(
-                  style: ButtonStyles.headerButtonStyle,
-                  onPressed: () async{
-                    if (Variables.selectedUser.role == 'admin') {
-                      await Events.updateEvent(Variables.currentEvent,event.id);
-                      Variables.allEvents.clear();
-                      Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
-                      States.eventPressed='';}
-                  },
-                  icon: const Icon(Icons.save),
-                  label: const Text('Сохранить   ')),
-            ],
-          )
-        ],
-      ),
-    );
+    )
+      )
+    ;
   }
 }

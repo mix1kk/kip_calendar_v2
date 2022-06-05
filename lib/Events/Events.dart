@@ -8,6 +8,7 @@ import '../AlertDialogs.dart';
 import '../Widgets.dart';
 import '../main.dart';
 import '../Database.dart';
+import 'Widgets/EventsWidgets.dart';
 
 class EventsScreen extends StatefulWidget {
   EventsScreen({Key? key, required this.name}) : super(key: key);
@@ -42,7 +43,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       body: Column(
         children: [
-          Widgets.eventsScreen(context,widget.name),
+          EventsWidgets.eventsScreen(context,widget.name),
         ],
       ),
       floatingActionButton: FloatingActionButton(

@@ -285,7 +285,7 @@ class AlertDialogs {
                   children: [
                     TextFormField(
                       decoration: const InputDecoration(
-                        labelText: 'Введите имя пользователя/ей',
+                        labelText: 'Выберите имя пользователя/ей',
                       ),
                       readOnly: true,
                       controller: eventsUserNameController,
@@ -503,7 +503,7 @@ class AlertDialogs {
 
                       if(!userNameTapped) {
                         await Events.addEvent(
-                           Variables.initialEvent);
+                           Variables.currentEvent);
                         Variables.allEvents.clear();
                         Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
                         Navigator.of(context).pop();

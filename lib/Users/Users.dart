@@ -3,6 +3,7 @@ import 'package:kip_calendar_v2/Widgets.dart';
 import 'package:kip_calendar_v2/StatesAndVariables.dart';
 
 import '../main.dart';
+import 'Widgets/UsersWidgets.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class _UsersScreenState extends State<UsersScreen> {
       ),
       body: Column(
         children: [
-          Widgets.usersScreen(Variables.clickedDay,context),
+          UsersWidgets.usersScreen(Variables.clickedDay,context),
         ],
       ),
     );
