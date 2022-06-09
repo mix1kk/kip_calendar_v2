@@ -301,7 +301,6 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
 
   static Future getAllEventsForUser(List<String> names) async {
     //чтение из базы данных
-   // Map<String, String>
     List<Events> allEvents = [];
     for (int i = 0; i < names.length; i++) {
       await FirebaseFirestore.instance
@@ -355,8 +354,18 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
         });
 
         });
-
+      Variables.allEvents = await Events.getAllEventsForUser(
+          Variables.selectedUsers);
 
 
   }
+
+  static Stream<Events> streamFromList (List<Events> list) async*{
+      for (int i =0; i< list.length;i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        yield list[i];
+      }
+
+  }
+
 }

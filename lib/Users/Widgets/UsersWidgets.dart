@@ -34,7 +34,7 @@ class UsersWidgets {
   // }
 
 
-  static Widget usersScreen(DateTime day, context) {
+  static Widget usersScreen( context) {
     final Stream<QuerySnapshot> _usersStream =
     FirebaseFirestore.instance.collection('users').snapshots();
     //основная таблица  на экране UsersScreen

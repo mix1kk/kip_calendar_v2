@@ -246,7 +246,7 @@ class AlertDialogs {
                       await Events.deleteEvent(id);
                       States.eventPressed = '';
                       Variables.allEvents.clear();
-                      Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
+                      Variables.allEvents=await Events.getAllEventsForUser(Variables.selectedUsers);
                       Navigator.pushNamedAndRemoveUntil(
                           context, '/events', (route) => false);
                     },
@@ -505,10 +505,143 @@ class AlertDialogs {
                         await Events.addEvent(
                            Variables.currentEvent);
                         Variables.allEvents.clear();
-                        Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
+                        Variables.allEvents=await Events.getAllEventsForUser(Variables.selectedUsers);
                         Navigator.of(context).pop();
                       }
 
+
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        });
+  }
+
+  static Future selectUsersAlertDialog(context,link) async {
+
+    List<String> users = await Users.getAllUsersNames();
+    List<String> selectedUsers = [];
+    bool userNameTapped = false;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text('Выберите пользователей'),
+                content:
+                    Column(
+                      children: [
+                    SizedBox( //выбор пользователей для создания события
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height/2 ,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      child: ListView.builder(
+                          itemCount: users.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return ListTile(
+                              title: Row(
+                                children: [
+                                  SizedBox(
+                                    width: Variables.firstColumnWidth / 2,
+                                    child: ElevatedButton(
+                                      style: ButtonStyles.headerButtonStyle,
+                                      onPressed: () {},
+                                      child: Text('${index + 1}'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width / 2,
+                                    child: ElevatedButton(
+                                      style:
+                                      (selectedUsers.contains(
+                                          users[index])) //цвет зависит от того, добавлен ли юзер в список
+                                          ? ButtonStyles.headerButtonStyle
+                                          : ButtonStyles.usersListButtonStyle,
+                                      onPressed: () {
+                                        if (selectedUsers //при нажатии закрашивает и добавляет в список, при повторном удаляет
+                                            .contains(users[index])) {
+                                          selectedUsers.remove(users[index]);
+                                        } else {
+                                          selectedUsers.add(users[index]);
+                                        }
+                                        setState(() {});
+                                      },
+                                      child: Text(users[index],
+                                          style: const TextStyle(
+                                              fontSize: 10.0)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                    ),
+                    SizedBox( //Кнопки в выборе пользователей для события
+                      height:  Variables.rowHeight,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width,
+                      child:
+                          ElevatedButton.icon(
+                              style: ButtonStyles.headerButtonStyle,
+                              onPressed: () {
+                                if (selectedUsers.length==users.length) {
+                                  selectedUsers.clear();
+                                }
+                                else {
+                                  selectedUsers.clear();
+                                  selectedUsers.addAll(users);
+                                }
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.group_add),
+                              label: const Text('Выбрать всех   ')),
+                          // ElevatedButton.icon(
+                          //     style: ButtonStyles.headerButtonStyle,
+                          //     onPressed: () {
+                          //       userNameTapped = !userNameTapped;
+                          //       setState(() {});
+                          //     },
+                          //     icon: const Icon(Icons.done),
+                          //     label: const Text('Ок   ')),
+
+                    ),
+                      ]),
+                actions: [
+                  TextButton(
+                    child: const Text("Отмена"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  TextButton(
+                    child: const Text("Выбрать"),
+                    onPressed: () async {
+                        if (selectedUsers.isNotEmpty) {
+                          Variables.selectedUsers=selectedUsers;
+                          Variables.allEvents = await Events.getAllEventsForUser(Variables.selectedUsers);
+                          Navigator.of(context).pop();
+                        }
+                        else {
+                          Variables.selectedUsers =[Variables.selectedUser.name];
+                          Navigator.of(context).pop();
+                        }
+                   // await
+                        Navigator.pushNamed(
+                            context,
+                            link);
 
                     },
                   ),

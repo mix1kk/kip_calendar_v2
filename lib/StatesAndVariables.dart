@@ -25,12 +25,13 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    SharedPreferences prefs = await _prefs;
    await prefs.setString('name',username);
   }
-
+   static List<String> selectedUsers=[];
   static Future <void> getPrefs ()async{//считывание сохраненных данных(имя пользователя, график)
    SharedPreferences prefs = await _prefs;
       Variables.selectedUser = (prefs.getString('name')==null)?Variables.currentUser:await Users.getUserByName(prefs.getString('name')!);
       currentSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
       allEvents = await Events.getAllEventsForUser([Variables.selectedUser.name]);
+      selectedUsers.add(Variables.selectedUser.name);
     }
 
  static Users selectedUser = Users(//выбранный главным пользователь
@@ -74,10 +75,10 @@ static Events initialEvent = Events(
    static Events currentEvent = initialEvent;
 
 
- static DateTime clickedDay=DateTime.now();
- static  Map<DateTime,String> eventsDay=Map.fromIterables(//Инициализация переменной двумя листами
-    List.generate(24, (index) => Variables.setZeroTime(Variables.clickedDay).add(Duration(hours: index))),
-    List.filled(24,''));
+// static DateTime clickedDay=DateTime.now();
+ // static  Map<DateTime,String> eventsDay=Map.fromIterables(//Инициализация переменной двумя листами
+ //    List.generate(24, (index) => Variables.setZeroTime(Variables.clickedDay).add(Duration(hours: index))),
+ //    List.filled(24,''));
 
  static setZeroTime(DateTime day){
 DateTime beginningOfDay = DateTime(day.year,day.month,day.day,0,0);

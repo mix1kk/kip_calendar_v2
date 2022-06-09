@@ -1,8 +1,10 @@
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kip_calendar_v2/Users/Users.dart';
+import 'AlertDialogs.dart';
 import 'Events/Events.dart';
 import 'Schedules/Schedules.dart';
 import 'Widgets.dart';
@@ -11,7 +13,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'StatesAndVariables.dart';
 import 'DayCalendar.dart';
 
-
+// Stream <QuerySnapshot> stream = FirebaseFirestore.instance
+//      .collection('events')//.where('userName',arrayContainsAny: name)
+//      .snapshots();
 void main() async {
   initializeDateFormatting('ru', null);
   Intl.defaultLocale = 'ru';
@@ -82,7 +86,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/calendar',
       routes: {
-        '/events': (context) =>  EventsScreen(name: [Variables.selectedUser.name]),
+        '/events': (context) =>  EventsScreen(stream: FirebaseFirestore.instance
+            .collection('events').where('userName',arrayContainsAny: Variables.selectedUsers)
+            .snapshots(),/*stream name: [Variables.selectedUser.name]*/),
         '/schedules': (context) =>  SchedulesScreen(),
         '/users': (context) => UsersScreen(),
         '/calendar': (context) => CalendarScreen(),
@@ -143,7 +149,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 width: MediaQuery.of(context).size.width - 20,
                 child: Align(
                   alignment: Alignment.bottomCenter,
-                  child: Text(Variables.selectedUser.name,style: const TextStyle(fontSize: 12.0)),
+                  child: TextButton(
+                    style: ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.white),
+                    padding: MaterialStateProperty.all(EdgeInsets.zero) ),
+                    child:
+                   Text(Variables.selectedUsers.toString(),style: const TextStyle(fontSize: 12.0)),
+                    onPressed: ()async {
+                      await AlertDialogs.selectUsersAlertDialog(context,'/calendar');
+                    },
+                  ),
                 )
               ),
             ],

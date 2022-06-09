@@ -1,6 +1,8 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kip_calendar_v2/AlertDialogs.dart';
+import 'Events/Events.dart';
 import 'Schedules/Widgets/SchedulesWidgets.dart';
 import 'StatesAndVariables.dart';
 import 'Database.dart';
@@ -74,7 +76,7 @@ class Widgets {
                   border: Border.all(color: Colors.black12),
                   color: Colors.grey),
               width: double.infinity,
-              height: (currentDay.day < 8) ? 25 : 0.0,
+              height: (currentDay.day < 8) ? Variables.rowHeight/2 : 0.0,
               child: Center(
                 child: //Название месяца и год в начале каждого месяца
                     Text(DateFormat.yMMMM().format(currentDay).toUpperCase()),
@@ -140,10 +142,11 @@ class Widgets {
             style = ButtonStyles.fadedDayButtonStyle;
           } else {
 
-            for (int i=0;i<Variables.allEvents.length;i++) {
-              if(week[day].millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
-                  week[day].millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
-              {isEvent=true;}//определение ивента в текущий день и окрашивание в цвет ивента
+            for (int i=0;i<Variables.allEvents.length;i++) {//определение ивента в текущий день и окрашивание в цвет ивента
+
+              if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
+                  (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
+              {isEvent=true;}
             }
 
 
@@ -157,8 +160,8 @@ class Widgets {
           } else {
 
             for (int i=0;i<Variables.allEvents.length;i++) {
-              if(week[day].millisecondsSinceEpoch>=Variables.allEvents[i].startDate.millisecondsSinceEpoch&&
-                  week[day].millisecondsSinceEpoch<=Variables.allEvents[i].endDate.millisecondsSinceEpoch)
+              if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
+                  (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
               {isEvent=true;}//определение ивента в текущий день для окрашивания рамки в цвет ивента
             }
 
@@ -172,7 +175,7 @@ class Widgets {
       widgets.add(
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
-          decoration: isEvent?  BoxDecoration(
+          decoration: isEvent?  BoxDecoration(//Определение ивента и окрашивание в цвет
               borderRadius: const BorderRadius.all(Radius.circular(5)),
               color: Colors.orangeAccent,
               border: Border.all(color: Colors.white)
@@ -249,24 +252,35 @@ class Widgets {
                 ),
               onPressed: (){},
             )
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-            //   children: [
-            //     Text(
-            //       dayNumberByTK, //Номер дня по ТК
-            //       style: const TextStyle(fontSize: 9),
-            //     ),
-            //     Text(
-            //       dayLetterByTK, //Обозначение дня по ТК
-            //       style: const TextStyle(fontSize: 9),
-            //     ),
-            //   ],
-            // ),
           ),
         ],
       ),
-      //todo Выбор цвета кнопки в зависимости от наличия событий в эту дату
-      onPressed: () async{
+      onPressed: () {
+        if(Variables.selectedUser.role=='admin') {
+          // var stream= FirebaseFirestore.instance
+          //     .collection('events')
+          //     .snapshots();
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EventsScreen(
+                stream:
+                Events.streamFromList(Variables.selectedUsers);
+                //stream
+
+                // FirebaseFirestore.instance
+                // .collection('events')
+                // .snapshots()
+            )));
+          //todo: возможно сделать формирование потока на основе выбранных критериев
+        }
+        else{Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => EventsScreen(
+                stream: FirebaseFirestore.instance
+                    .collection('events')
+                    .where('userName',arrayContainsAny: Variables.selectedUsers)
+                    .snapshots())));}
         // if (day is! String) {
         //   listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
         //   Navigator.pushNamed(context, '/calendarDay');
