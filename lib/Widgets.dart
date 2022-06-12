@@ -265,12 +265,12 @@ class Widgets {
             context,
             MaterialPageRoute(builder: (context) => EventsScreen(
                 stream:
-                Events.streamFromList(Variables.selectedUsers);
+                //Events.streamFromList(Variables.selectedUsers);
                 //stream
 
-                // FirebaseFirestore.instance
-                // .collection('events')
-                // .snapshots()
+                FirebaseFirestore.instance
+                .collection('events')
+                .snapshots()
             )));
           //todo: возможно сделать формирование потока на основе выбранных критериев
         }

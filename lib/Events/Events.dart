@@ -1,20 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:kip_calendar_v2/Users/Users.dart';
-import 'package:kip_calendar_v2/Menu/Menu.dart';
-import 'package:kip_calendar_v2/Events/Events.dart';
-import 'package:flutter/material.dart';
 import '../AlertDialogs.dart';
 import '../StatesAndVariables.dart';
-import '../Widgets.dart';
 import '../main.dart';
 import '../Database.dart';
 import 'Widgets/EventsWidgets.dart';
 
 class EventsScreen extends StatefulWidget {
-  EventsScreen({Key? key, required this.stream/*name*/}) : super(key: key);
-//final List<String> name;
+  const EventsScreen({Key? key, required this.stream}) : super(key: key);
  final Stream <QuerySnapshot> stream;
   @override
   State<EventsScreen> createState() => _EventsScreenState();
@@ -33,8 +26,7 @@ class _EventsScreenState extends State<EventsScreen> {
               alignment: Alignment.topCenter,
               child: Text('События', style: TextStyle(fontSize: 20.0)) ,
             ),
-            Container(
-              // padding: const EdgeInsets.fromLTRB(50.0, 8.0, 0.0, 1.0),
+            SizedBox(
                 height: 20.0,
                 width: MediaQuery.of(context).size.width - 20,
                 child: Align(

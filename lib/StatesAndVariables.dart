@@ -75,11 +75,6 @@ static Events initialEvent = Events(
    static Events currentEvent = initialEvent;
 
 
-// static DateTime clickedDay=DateTime.now();
- // static  Map<DateTime,String> eventsDay=Map.fromIterables(//Инициализация переменной двумя листами
- //    List.generate(24, (index) => Variables.setZeroTime(Variables.clickedDay).add(Duration(hours: index))),
- //    List.filled(24,''));
-
  static setZeroTime(DateTime day){
 DateTime beginningOfDay = DateTime(day.year,day.month,day.day,0,0);
 return beginningOfDay;
@@ -93,8 +88,6 @@ class States{
  static bool isPulled = false;
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
- //static List<bool> isSchedulePressed=List.filled(100, false);
-// static List<bool> isEventPressed=List.filled(1000, false);
 static String eventPressed='';
 
 }

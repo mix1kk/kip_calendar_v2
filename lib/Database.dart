@@ -1,11 +1,5 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
-
-// Import the firebase_core and cloud_firestore plugin
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'StatesAndVariables.dart';
 
 
@@ -40,10 +34,8 @@ class Schedules {
         .doc(scheduleName)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-      //List <dynamic> list = documentSnapshot.get('schedule');
       schedule = Schedules(
           documentSnapshot.get('name'),
-          //list.cast<int>(),
           documentSnapshot.get('schedule').cast<int>(),
           documentSnapshot.get('isExpanded')
       );
@@ -59,32 +51,6 @@ class Schedules {
         .delete();
   }
 
-  // static getScheduleName(int scheduleNumber) async {
-  //   //чтение из базы данных
-  //   String scheduleName = '';
-  //   await FirebaseFirestore.instance
-  //       .collection('schedules')
-  //       .doc('$scheduleNumber')
-  //       .get()
-  //       .then((DocumentSnapshot documentSnapshot) {
-  //     scheduleName = documentSnapshot.get('name').toString();
-  //   });
-  //   return scheduleName;
-  // }
-  //
-  // static getAllSchedulesNames() async {
-  //   //чтение из базы данных
-  //   List<String> scheduleName = [];
-  //   await FirebaseFirestore.instance
-  //       .collection('schedules')
-  //       .get()
-  //       .then((QuerySnapshot querySnapshot) {
-  //     querySnapshot.docs.forEach((doc) {
-  //       scheduleName.add(doc.get('name'));
-  //     });
-  //   });
-  //   return scheduleName;
-  // }
 
   static getWorkingDay(DateTime currentDay, List<int> schedule) {
     Duration difference = currentDay.difference(
@@ -144,12 +110,12 @@ class Users {
     // );
   }
 
-  static Future getUserByName(String Name) async {
+  static Future getUserByName(String name) async {
     Users user = Variables.currentUser;
     //чтение из базы данных
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(Name)
+        .doc(name)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
       user = Users(
@@ -360,12 +326,5 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
 
   }
 
-  static Stream<Events> streamFromList (List<Events> list) async*{
-      for (int i =0; i< list.length;i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        yield list[i];
-      }
-
-  }
 
 }

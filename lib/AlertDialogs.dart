@@ -300,7 +300,7 @@ class AlertDialogs {
                       height: userNameTapped ? MediaQuery
                           .of(context)
                           .size
-                          .height/2 : 0.0,//todo
+                          .height/2 : 0.0,
                       width: MediaQuery
                           .of(context)
                           .size
@@ -523,7 +523,7 @@ class AlertDialogs {
 
     List<String> users = await Users.getAllUsersNames();
     List<String> selectedUsers = [];
-    bool userNameTapped = false;
+ //   bool userNameTapped = false;
     showDialog(
         context: context,
         builder: (BuildContext context) {

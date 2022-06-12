@@ -2,7 +2,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:kip_calendar_v2/Users/Users.dart';
 import 'AlertDialogs.dart';
 import 'Events/Events.dart';
@@ -11,11 +10,8 @@ import 'Widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'StatesAndVariables.dart';
-import 'DayCalendar.dart';
 
-// Stream <QuerySnapshot> stream = FirebaseFirestore.instance
-//      .collection('events')//.where('userName',arrayContainsAny: name)
-//      .snapshots();
+
 void main() async {
   initializeDateFormatting('ru', null);
   Intl.defaultLocale = 'ru';
@@ -34,10 +30,10 @@ class MyApp extends StatelessWidget {
         context: context,
         builder: (context) {
           return SimpleDialog(
-            title: Text("Выбор меню"),
+            title: const Text("Выбор меню"),
             children: <Widget>[
               SimpleDialogOption(
-                child: Text("На главную"),
+                child: const Text("На главную"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.pushNamed(
@@ -47,7 +43,7 @@ class MyApp extends StatelessWidget {
                 },
               ),
               SimpleDialogOption(
-                child: Text("Пользователи"),
+                child: const Text("Пользователи"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.pushNamed(
@@ -57,7 +53,7 @@ class MyApp extends StatelessWidget {
                 },
               ),
               SimpleDialogOption(
-                child: Text("Графики"),
+                child: const Text("Графики"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.pushNamed(
@@ -67,7 +63,7 @@ class MyApp extends StatelessWidget {
                 },
               ),
               SimpleDialogOption(
-                child: Text("События"),
+                child: const Text("События"),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.pushNamed(
@@ -89,15 +85,13 @@ class MyApp extends StatelessWidget {
         '/events': (context) =>  EventsScreen(stream: FirebaseFirestore.instance
             .collection('events').where('userName',arrayContainsAny: Variables.selectedUsers)
             .snapshots(),/*stream name: [Variables.selectedUser.name]*/),
-        '/schedules': (context) =>  SchedulesScreen(),
-        '/users': (context) => UsersScreen(),
-        '/calendar': (context) => CalendarScreen(),
-//        '/calendarDay': (context) => DayCalendarScreen(),
+        '/schedules': (context) =>  const SchedulesScreen(),
+        '/users': (context) => const UsersScreen(),
+        '/calendar': (context) => const CalendarScreen(),
       },
            theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-     // home: CalendarScreen(),
     );
   }
 }
@@ -143,8 +137,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 alignment: Alignment.topCenter,
                 child: Text('Календарь', style: TextStyle(fontSize: 20.0)) ,
               ),
-              Container(
-               // padding: const EdgeInsets.fromLTRB(50.0, 8.0, 0.0, 1.0),
+              SizedBox(
                 height: 20.0,
                 width: MediaQuery.of(context).size.width - 20,
                 child: Align(
@@ -181,4 +174,3 @@ class _CalendarScreenState extends State<CalendarScreen> {
 //todo: вылетает ошибка при попытке загрузки несуществующего графика
 //todo: сделать в каждом пользователе отдельный массив изменений в графике работы
 //todo: сделать отображение и сортировку событий
-//todo: привести к единому формату открытие и закрытие списка в именах и графиках
