@@ -89,5 +89,7 @@ class States{
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
 static String eventPressed='';
+static DateTime startSelection =  DateTime(2022);//для начала выделения диапазона дат
+ static DateTime endSelection =  DateTime(2022);//для конца выделения диапазона дат
 
 }

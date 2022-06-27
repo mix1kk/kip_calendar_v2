@@ -195,17 +195,10 @@ class Widgets {
   static Widget dayCalendarMonthScreen(dynamic day, style, context) {
    // List<Events> listEvents;
     String dayNumberByTK = '';
-    String dayLetterByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
       dayNumberByTK =
           Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)
               .toString(); //Номер дня по ТК
-      dayLetterByTK = Variables.numbersForWorkingDays[Schedules.getWorkingDay(
-                  day, Variables.currentSchedule.schedule)] ==
-              null
-          ? ''
-          : Variables.numbersForWorkingDays[Schedules.getWorkingDay(
-              day, Variables.currentSchedule.schedule)]!;
 //Обозначение дня по ТК
     }
     return
@@ -249,23 +242,23 @@ class Widgets {
           ),
         ],
       ),
-      onPressed: () {
+      onLongPress: () {
         if(Variables.selectedUser.role=='admin') {
           // var stream= FirebaseFirestore.instance
           //     .collection('events')
           //     .snapshots();
 
           Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => EventsScreen(
-                stream:
-                //Events.streamFromList(Variables.selectedUsers);
-                //stream
+              context,
+              MaterialPageRoute(builder: (context) => EventsScreen(
+                  stream:
+                  //Events.streamFromList(Variables.selectedUsers);
+                  //stream
 
-                FirebaseFirestore.instance
-                .collection('events')
-                .snapshots()
-            )));
+                  FirebaseFirestore.instance
+                      .collection('events')
+                      .snapshots()
+              )));
           //todo: возможно сделать формирование потока на основе выбранных критериев
         }
         else{Navigator.push(
@@ -281,6 +274,24 @@ class Widgets {
         // }
         //todo считывание всех ивентов для данного пользователя в кликнутую дату
         //        dialogOnMainScreen();
+      },
+      onPressed: (){
+        if (States.startSelection == DateTime(2022)) {
+          States.startSelection = day;
+          States.endSelection = day;
+        }
+        else {
+          if(States.startSelection == day){
+            States.startSelection = DateTime(2022);
+          }
+          else{
+            States.endSelection=day;
+          }
+
+        }
+        print('States.startSelection ' '${States.startSelection}');
+        print('States.endSelection ' '${States.endSelection}');
+//todo: доделать выбор диапазона
       },
     )
       )

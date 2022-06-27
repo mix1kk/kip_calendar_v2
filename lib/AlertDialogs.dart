@@ -270,9 +270,9 @@ class AlertDialogs {
     endDateEventController.text = DateFormat.yMd()
         .format(Variables.currentEvent.endDate);
 
-
+    eventsUserNameController.text = Variables.selectedUser.name;
     List<String> users = [];
-    List<String> selectedUsers = [];
+    List<String> selectedUsers = [Variables.selectedUser.name];
     bool userNameTapped = false;
     showDialog(
         context: context,
@@ -522,7 +522,7 @@ class AlertDialogs {
   static Future selectUsersAlertDialog(context,link) async {
 
     List<String> users = await Users.getAllUsersNames();
-    List<String> selectedUsers = [];
+    List<String> selectedUsers = [Variables.selectedUser.name];
  //   bool userNameTapped = false;
     showDialog(
         context: context,

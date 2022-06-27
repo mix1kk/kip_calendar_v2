@@ -111,9 +111,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // if (States.isPulled) {
-    //   setState(() {});
-    // }
+
     return RefreshIndicator(
       onRefresh:() {return Widgets.pullRefresh(context);},
       child: Scaffold(
@@ -164,6 +162,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],context,'main'),
             Widgets.mainBodyCalendarMonthScreen(DateTime(2022),context),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            await AlertDialogs.addEventAlertDialog(context);
+            setState(() {});
+          },
+          child: const Icon(Icons.add_outlined),
         ),
       ),
     );
