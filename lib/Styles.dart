@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'Database.dart';
 
 class ButtonStyles {
-  static day Style(DateTime day,List<int>schedule, String callPlace) {
+  static dayStyle(DateTime day,List<int>schedule, String callPlace) {
     //вычисление окрашивания дня недели по дате и имени выбранного пользователя
     var style = ButtonStyles.simpleDayButtonStyle;
     if ((day.year == DateTime.now().year) &&
