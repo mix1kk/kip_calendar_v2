@@ -29,6 +29,15 @@ class ButtonStyles {
 
     return style;
   }
+static BoxDecoration eventBoxDecoration = BoxDecoration(//Определение ивента и окрашивание в цвет
+  borderRadius: const BorderRadius.all(Radius.circular(5)),
+  color: Colors.orangeAccent,
+  border: Border.all(color: Colors.white));
+  static BoxDecoration simpleBoxDecoration = BoxDecoration(
+    //  color: Colors.white,
+    border: Border.all(color: Colors.white),
+  );
+
 
   static ButtonStyle usersListButtonStyle = ButtonStyle(
       textStyle:

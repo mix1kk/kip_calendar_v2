@@ -126,7 +126,8 @@ class Widgets {
 
   static List<Widget> weekCalendarMonthScreen(
       List<dynamic> week, context, String callPlace) {
-    bool isEvent = false;
+    BoxDecoration boxDecoration = ButtonStyles.simpleBoxDecoration;
+   // bool isEvent = false;
     //7 дней недели в строке на экране CalendarMonthScreen
     List<Widget> widgets = [];
     var style =
@@ -146,7 +147,7 @@ class Widgets {
 
               if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
                   (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
-              {isEvent=true;}
+              {boxDecoration = ButtonStyles.eventBoxDecoration;}
             }
 
 
@@ -162,7 +163,7 @@ class Widgets {
             for (int i=0;i<Variables.allEvents.length;i++) {
               if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
                   (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
-              {isEvent=true;}//определение ивента в текущий день для окрашивания рамки в цвет ивента
+              {boxDecoration = ButtonStyles.eventBoxDecoration;}//определение ивента в текущий день для окрашивания рамки в цвет ивента
             }
 
 
@@ -175,14 +176,7 @@ class Widgets {
       widgets.add(
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
-          decoration: isEvent?  BoxDecoration(//Определение ивента и окрашивание в цвет
-              borderRadius: const BorderRadius.all(Radius.circular(5)),
-              color: Colors.orangeAccent,
-              border: Border.all(color: Colors.white)
-          ):  BoxDecoration(
-          //  color: Colors.white,
-             border: Border.all(color: Colors.white),
-          ),
+          decoration: boxDecoration,
           width:
               (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
                   7,
@@ -192,7 +186,7 @@ class Widgets {
               : SchedulesWidgets.dayCalendarScheduleScreen(week[day], style, context),
         ),
       );
-      isEvent=false;
+      boxDecoration = ButtonStyles.simpleBoxDecoration;
     }
     States.isLastWeek = false;
     return widgets;
