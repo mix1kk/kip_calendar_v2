@@ -194,6 +194,7 @@ class Widgets {
 
   static Widget dayCalendarMonthScreen(dynamic day, style, context) {
    // List<Events> listEvents;
+    BoxDecoration boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
     String dayNumberByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
       dayNumberByTK =
@@ -201,15 +202,16 @@ class Widgets {
               .toString(); //Номер дня по ТК
 //Обозначение дня по ТК
     }
+    if (day is DateTime && Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.startSelection))>=0 &&
+        Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.endSelection))<=0)
+      {
+        boxDecoration = ButtonStyles.selectedInnerBoxDecoration;
+      }
+    else {boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;}
+
     return
       Container( // внутренний контейнер для исключения смешивания цвета внешнего контейнера и кнопки
-        decoration:   BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: Colors.transparent,
-            ),
-            borderRadius: const BorderRadius.all(Radius.circular(5))
-        ),
+        decoration:  boxDecoration,
         child:
       ElevatedButton(
       style: (day
@@ -281,16 +283,22 @@ class Widgets {
           States.endSelection = day;
         }
         else {
-          if(States.startSelection == day){
+          if( day == States.startSelection){
             States.startSelection = DateTime(2022);
+            States.endSelection = DateTime(2022);
           }
           else{
-            States.endSelection=day;
+            if( States.startSelection != States.endSelection) {
+              States.startSelection = DateTime(2022);
+              States.endSelection = DateTime(2022);
+            }
+            else{
+              States.endSelection=day;
+            }
+
           }
 
         }
-        print('States.startSelection ' '${States.startSelection}');
-        print('States.endSelection ' '${States.endSelection}');
 //todo: доделать выбор диапазона
       },
     )

@@ -37,6 +37,21 @@ static BoxDecoration eventBoxDecoration = BoxDecoration(//Определение
     //  color: Colors.white,
     border: Border.all(color: Colors.white),
   );
+static BoxDecoration selectedInnerBoxDecoration = BoxDecoration(
+    color: Colors.white,
+    border: Border.all(
+      width: 2.0,
+      color: Colors.blueGrey,
+    ),
+    borderRadius: const BorderRadius.all(Radius.circular(5))
+);
+  static BoxDecoration unselectedInnerBoxDecoration = BoxDecoration(
+      color: Colors.white,
+      border: Border.all(
+        color: Colors.transparent,
+      ),
+      borderRadius: const BorderRadius.all(Radius.circular(5))
+  );
 
 
   static ButtonStyle usersListButtonStyle = ButtonStyle(
