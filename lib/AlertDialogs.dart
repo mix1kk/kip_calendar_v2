@@ -258,21 +258,36 @@ class AlertDialogs {
         });
   }
 
-  static Future addEventAlertDialog(context) async {
+  static Future addEventAlertDialog(context, String link) async {
     final TextEditingController startDateEventController = TextEditingController();
     final TextEditingController endDateEventController = TextEditingController();
     final TextEditingController dateOfNotificationEventController = TextEditingController();
     final TextEditingController eventsUserNameController = TextEditingController();
-    startDateEventController.text =
-        DateFormat.yMd().format(Variables.currentEvent.startDate);
-    dateOfNotificationEventController.text = DateFormat.yMd()
-        .format(Variables.currentEvent.dateOfNotification);
-    endDateEventController.text = DateFormat.yMd()
-        .format(Variables.currentEvent.endDate);
 
+   if(States.startSelection!=DateTime(2022)){
+     startDateEventController.text =
+         DateFormat.yMd().format(States.startSelection);
+     dateOfNotificationEventController.text = DateFormat.yMd()
+         .format(States.startSelection);
+     endDateEventController.text = DateFormat.yMd()
+         .format(States.endSelection);
+     Variables.currentEvent.startDate = States.startSelection;
+     Variables.currentEvent.endDate = States.endSelection;
+     Variables.currentEvent.dateOfNotification = States.startSelection;
+
+   }
+   else {
+     startDateEventController.text =
+         DateFormat.yMd().format(Variables.currentEvent.startDate);
+     dateOfNotificationEventController.text = DateFormat.yMd()
+         .format(Variables.currentEvent.dateOfNotification);
+     endDateEventController.text = DateFormat.yMd()
+         .format(Variables.currentEvent.endDate);
+   }
     eventsUserNameController.text = Variables.selectedUser.name;
     List<String> users = [];
     List<String> selectedUsers = [Variables.selectedUser.name];
+    Variables.currentEvent.userName = selectedUsers;
     bool userNameTapped = false;
     showDialog(
         context: context,
@@ -436,7 +451,6 @@ class AlertDialogs {
                                     Variables.currentEvent.endDate, context);
                                 endDateEventController.text = DateFormat.yMd()
                                     .format(Variables.currentEvent.endDate);
-                                //    FocusManager.instance.primaryFocus?.unfocus();
                               }
                             },
                             decoration: const InputDecoration(
@@ -507,6 +521,9 @@ class AlertDialogs {
                         Variables.allEvents.clear();
                         Variables.allEvents=await Events.getAllEventsForUser(Variables.selectedUsers);
                         Navigator.of(context).pop();
+                        Navigator.pushNamed(
+                            context,
+                            link);
                       }
 
 

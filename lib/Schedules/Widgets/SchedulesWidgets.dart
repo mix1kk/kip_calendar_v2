@@ -6,6 +6,7 @@ import 'package:kip_calendar_v2/Database.dart';
 import 'package:kip_calendar_v2/Styles.dart';
 import 'package:intl/intl.dart';
 
+import '../../Events/Events.dart';
 import '../../Widgets.dart';
 //
 // final TextEditingController dateOfBirthController = TextEditingController();
@@ -209,7 +210,7 @@ class SchedulesWidgets {
     for (int week = 0; week < 8; week++) {
       currentDay = currentDay.add(Duration(days: 7 * week));
       weekWidgets.add(
-        Widgets.rowCalendarMonthScreen(getNumberOfWeek(currentDay).toString(),
+        /*Widgets.*/rowCalendarMonthScreen(getNumberOfWeek(currentDay).toString(),
             getWeekDays(currentDay), context, 'schedules'),
       );
       currentDay = DateTime.now();
@@ -262,222 +263,213 @@ class SchedulesWidgets {
   }
 
 
+  static Widget rowCalendarMonthScreen(
+      //Строка на экране CalendarMonthScreen
+      String nameFirstColumn,
+      List<dynamic> week,
+      context,
+      String
+      callPlace) //String callPlace - указать место, откуда произошел вызов функции для разного отображения в разных местах
+  {
+    return SizedBox(
+      height: Variables.rowHeight + 5,
+      child: Row(children: [
+        Container(
+          padding: const EdgeInsets.all(3.0),
+          width: Variables.firstColumnWidth,
+          height: Variables.rowHeight,
+          child: ElevatedButton(
+            style: ButtonStyles.headerButtonStyle,
+            onPressed: () {},
+            child: Text(nameFirstColumn, style: const TextStyle(fontSize: 12)),
+          ),
+        ),
+        Row(
+          children: weekCalendarMonthScreen(week, context, callPlace),
+        ),
+      ]),
+    );
+  }
 
-//   static Widget eventsScreen(context,List<String> name) {
-//     Stream <QuerySnapshot> stream = FirebaseFirestore.instance
-//         .collection('events')//.where('userName',arrayContainsAny: name)
-//         .snapshots();
-//
-//     //основная таблица  на экране Events
-//     return Expanded(
-//       child: StreamBuilder<QuerySnapshot>(
-//           stream: stream,
-//
-//           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> events) {
-//
-//             if (events.hasError) {
-//               return const Text('Что-то пошло не так');
-//             }
-//
-//             if (events.connectionState == ConnectionState.waiting) {
-//               return const Center(child: CircularProgressIndicator());
-//               //const Text("Loading");
-//             }
-//               return ListView.builder(
-//                 itemCount: events.data!.docs.length,
-//                 itemBuilder: (BuildContext context, int index) {
-//                   return Column(children: [
-//                     eventsMainScreenName(
-//                         context,
-//                         index,
-//                         events.data!.docs[index],
-//                     ),
-//                     SizedBox(
-//                       height:
-//                       (events.data!.docs[index].id == States.eventPressed )? Variables.rowHeight * 11 : 0.0,
-//                       child: eventsMainScreenData(context,
-//                       events.data!.docs[index],),
-//                     ),
-//                   ]);
-//                 });
-//             })
-//     );
-//   }
-//
-//
-//
-//   static Widget eventsMainScreenName(context, int index, DocumentSnapshot event) {//построение списка с названиями событий для всех пользователей
-//       Events newEvent = Events.getEventFromSnapshot(event);
-//     return Row(
-//       children: [
-//         Container(
-//             padding: const EdgeInsets.all(2.0),
-//             height: Variables.rowHeight * 2,
-//             width: Variables.firstColumnWidth,
-//             child: ElevatedButton(
-//               style: ButtonStyles.headerButtonStyle,
-//               onPressed: () {},
-//               child: Text('${index + 1}'),
-//             )),
-//         Container(
-//             padding: const EdgeInsets.all(2.0),
-//             height: Variables.rowHeight * 2,
-//             width:
-//                 MediaQuery.of(context).size.width - Variables.firstColumnWidth,
-//             child: ElevatedButton(
-//               style: (event.id == States.eventPressed)?ButtonStyles.headerButtonStyle:ButtonStyles.usersListButtonStyle,
-//               onPressed: () async{
-//                 if (event.id == States.eventPressed)
-//                  { States.eventPressed='';
-//                  Variables.currentEvent = Variables.initialEvent;
-//                 }
-//                 else {
-//                   States.eventPressed=event.id;
-//                   Variables.currentEvent = newEvent;
-//                   startDateEventController.text =
-//                       DateFormat.yMd().format(Variables.currentEvent.startDate);
-//                   dateOfNotificationEventController.text = DateFormat.yMd()
-//                       .format(Variables.currentEvent.dateOfNotification);
-//                   endDateEventController.text = DateFormat.yMd()
-//                       .format(Variables.currentEvent.endDate);
-//                 }//для окрашивания выбранного ивента
-//                 newEvent.isExpanded = !newEvent.isExpanded;//для обновления экрана
-//                  await Events.updateEvent(newEvent,event.id);//для обновления экрана
-//               },
-//               child: ListTile(
-//                 title: Text(newEvent.event),
-//                 subtitle: Text(newEvent.userName.toString()),
-//               ),
-//             )),
-//       ],
-//     );
-//   }
-//   static Widget eventsMainScreenData(context, DocumentSnapshot event) {
-//     //полные данные пользователей
-//     return Container(
-//       padding: const EdgeInsets.all(2.0),
-//       width: MediaQuery.of(context).size.width,
-//       child: Column(
-//         children: [
-//           TextFormField(
-//             readOnly: Variables.selectedUser.role != 'admin',
-//             decoration: const InputDecoration(
-//               labelText: 'Название события',
-//             ),
-//             initialValue: Variables.currentEvent.event,
-//             onChanged: (value) {
-//               Variables.currentEvent.event = value;
-//             },
-//           ),
-//           TextFormField(
-//             controller: startDateEventController,
-//             readOnly: true,
-//             onTap: () async {
-//               if (Variables.selectedUser.role == 'admin') {
-//                 Variables.currentEvent.startDate =
-//                 await AlertDialogs.selectDate(
-//                     Variables.currentEvent.startDate, context);
-//                 startDateEventController.text =
-//                     DateFormat.yMd().format(Variables.currentEvent.startDate);
-//               }
-//             },
-//             decoration: const InputDecoration(
-//               labelText: 'Дата начала события',
-//             ),
-//           ),
-//           TextFormField(
-//             controller: endDateEventController,
-//             readOnly: true,
-//             onTap: () async {
-//               if (Variables.selectedUser.role == 'admin') {
-//                 Variables.currentEvent.endDate =
-//                 await AlertDialogs.selectDate(
-//                     Variables.currentEvent.endDate, context);
-//                 endDateEventController.text = DateFormat.yMd()
-//                     .format(Variables.currentEvent.endDate);
-//                 //    FocusManager.instance.primaryFocus?.unfocus();
-//               }
-//             },
-//             decoration: const InputDecoration(
-//               labelText: 'Дата окончания события',
-//             ),
-//           ),
-//
-//           TextFormField(
-//             controller: dateOfNotificationEventController,
-//             readOnly: true,
-//             onTap: () async {
-//               if (Variables.selectedUser.role == 'admin') {
-//                 Variables.currentEvent.dateOfNotification =
-//                 await AlertDialogs.selectDate(
-//                     Variables.currentEvent.dateOfNotification, context);
-//                 dateOfNotificationEventController.text = DateFormat.yMd()
-//                     .format(Variables.currentEvent.dateOfNotification);
-//                 //    FocusManager.instance.primaryFocus?.unfocus();
-//               }
-//             },
-//             decoration: const InputDecoration(
-//               labelText: 'Дата напоминания',
-//             ),
-//           ),
-//           TextFormField(
-//             readOnly: Variables.selectedUser.role != 'admin',
-//             decoration: const InputDecoration(
-//               labelText: 'Тип события',
-//             ),
-//             initialValue: Variables.currentEvent.typeOfEvent,
-//             onChanged: (value) {
-//               Variables.currentEvent.typeOfEvent = value;
-//             },
-//           ),
-//           TextFormField(
-//             readOnly: Variables.selectedUser.role != 'admin',
-//             decoration: const InputDecoration(
-//               labelText: 'Комментарий',
-//             ),
-//             initialValue: Variables.currentEvent.comment,
-//             onChanged: (value) {
-//               Variables.currentEvent.comment = value;
-//             },
-//           ),
-//           //todo: сделать флаг "задание выполнено"
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               ElevatedButton.icon(
-//                   style: ButtonStyles.headerButtonStyle,
-//                   onPressed: () async{
-//                     if (Variables.selectedUser.role == 'admin') {
-//                       await AlertDialogs.deleteEventsScreen(context, Variables.currentEvent.userName,event.id);
-//                       Variables.allEvents.clear();
-//                       Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
-//                     //  Events.deleteEvent(Variables.currentEvent.userName, event.id);
-// //todo:добавить уведомление о недостаточности прав , если не админ
-//                     }
-//                   },
-//                   icon: const Icon(Icons.delete),
-//                   label: const Text('Удалить   ')),
-//               ElevatedButton.icon(
-//                   style: ButtonStyles.headerButtonStyle,
-//                   onPressed: () async{
-//                     if (Variables.selectedUser.role == 'admin') {
-//                       States.eventPressed='';
-//                       Variables.currentEvent.isExpanded=!Variables.currentEvent.isExpanded;
-//                       await Events.updateEvent(Variables.currentEvent,event.id);
-//                       Variables.allEvents.clear();
-//                       Variables.allEvents=await Events.getAllEventsForUser([Variables.selectedUser.name]);
-//
-//                       // Variables.currentEvent.isExpanded=!Variables.currentEvent.isExpanded;
-//                       // await Events.updateEvent(Variables.currentEvent,event.id);
-//                     }
-//
-//                   },
-//                   icon: const Icon(Icons.save),
-//                   label: const Text('Сохранить   ')),
-//             ],
-//           )
-//         ],
-//       ),
-//     );
-//   }
+  static List<Widget> weekCalendarMonthScreen(
+      List<dynamic> week, context, String callPlace) {
+    BoxDecoration boxDecoration = ButtonStyles.simpleBoxDecoration;
+    // bool isEvent = false;
+    //7 дней недели в строке на экране CalendarMonthScreen
+    List<Widget> widgets = [];
+    var style =
+        ButtonStyles.simpleDayButtonStyle; //инициализация переменной style
+    for (int day = 0; day < 7; day++) {
+
+      if (week[0] is! String) {
+
+        if (States.isLastWeek) {
+          //проверка является ли текущая неделя последней в месяце
+          if (week[day].month != week[0].month && callPlace == 'main') {
+            //отрисовка затемненных дней следующего месяца в последней неделе текущего месяца, если вызвано с главного экрана
+            style = ButtonStyles.fadedDayButtonStyle;
+          } else {
+
+            for (int i=0;i<Variables.allEvents.length;i++) {//определение ивента в текущий день и окрашивание в цвет ивента
+
+              if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
+                  (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
+              {boxDecoration = ButtonStyles.eventBoxDecoration;}
+            }
+
+
+            style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
+                callPlace); // раскрашивание дней в соответствии с графиком
+          }
+        } else {
+          if (week[day].month != week[6].month && callPlace == 'main') {
+            //отрисовка затемненных дней предыдущего месяца в первой неделе текущего месяца, если вызвано с главного экрана
+            style = ButtonStyles.fadedDayButtonStyle;
+          } else {
+
+            for (int i=0;i<Variables.allEvents.length;i++) {
+              if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
+                  (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
+              {boxDecoration = ButtonStyles.eventBoxDecoration;}//определение ивента в текущий день для окрашивания рамки в цвет ивента
+            }
+
+
+            style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
+                callPlace); // раскрашивание дней в соответствии с графиком
+          }
+        }
+      }
+
+      widgets.add(
+        Container(
+          padding: const EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
+          decoration: boxDecoration,
+          width:
+          (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
+              7,
+          height: Variables.rowHeight,
+          child: (callPlace == 'main')
+              ? dayCalendarMonthScreen(week[day], style, context)
+              : SchedulesWidgets.dayCalendarScheduleScreen(week[day], style, context),
+        ),
+      );
+      boxDecoration = ButtonStyles.simpleBoxDecoration;
+    }
+    States.isLastWeek = false;
+    return widgets;
+  }
+
+  static Widget dayCalendarMonthScreen(dynamic day, style, context) {
+    // List<Events> listEvents;
+    BoxDecoration boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
+    String dayNumberByTK = '';
+    if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
+      dayNumberByTK =
+          Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)
+              .toString(); //Номер дня по ТК
+//Обозначение дня по ТК
+    }
+    if (day is DateTime && Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.startSelection))>=0 &&
+        Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.endSelection))<=0)
+    {
+      boxDecoration = ButtonStyles.selectedInnerBoxDecoration;
+    }
+    else {boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;}
+
+    return
+      Container( // внутренний контейнер для исключения смешивания цвета внешнего контейнера и кнопки
+          decoration:  boxDecoration,
+          child:
+          ElevatedButton(
+            style: (day
+            is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
+                ? ButtonStyles.headerButtonStyle
+                : style,
+            child: Column(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: ((day is! String) && States.showDayTypes)
+                        ? Alignment.bottomCenter
+                        : Alignment.center,
+                    child: Text(
+                      (day is String) ? day : DateFormat.d().format(day),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                    height: ((day is! String) && States.showDayTypes) ? 13 : 0,
+                    child: ElevatedButton(
+                      style: ButtonStyles.fadedDayButtonStyle,
+                      child:
+                      Text(
+                        dayNumberByTK, //Номер дня по ТК
+                        style: const TextStyle(fontSize: 9),
+                      ),
+                      onPressed: (){},
+                    )
+                ),
+              ],
+            ),
+            onLongPress: () {
+              if(Variables.selectedUser.role=='admin') {
+                // var stream= FirebaseFirestore.instance
+                //     .collection('events')
+                //     .snapshots();
+
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => EventsScreen(
+                        stream:
+                        //Events.streamFromList(Variables.selectedUsers);
+                        //stream
+
+                        FirebaseFirestore.instance
+                            .collection('events')
+                            .snapshots()
+                    )));
+                //todo: возможно сделать формирование потока на основе выбранных критериев
+              }
+              else{Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EventsScreen(
+                      stream: FirebaseFirestore.instance
+                          .collection('events')
+                          .where('userName',arrayContainsAny: Variables.selectedUsers)
+                          .snapshots())));}
+              // if (day is! String) {
+              //   listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
+              //   Navigator.pushNamed(context, '/calendarDay');
+              // }
+              //todo считывание всех ивентов для данного пользователя в кликнутую дату
+              //        dialogOnMainScreen();
+            },
+            onPressed: (){
+              if (States.startSelection == DateTime(2022)) {
+                States.startSelection = day;
+                States.endSelection = day;
+              }
+              else {
+                if( day == States.startSelection){
+                  States.startSelection = DateTime(2022);
+                  States.endSelection = DateTime(2022);
+                }
+                else{
+                  if( States.startSelection != States.endSelection) {
+                    States.startSelection = DateTime(2022);
+                    States.endSelection = DateTime(2022);
+                  }
+                  else{
+                    States.endSelection=day;
+                  }
+
+                }
+
+              }
+//todo: доделать выбор диапазона
+            },
+          )
+      )
+    ;
+  }
 }

@@ -73,7 +73,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await AlertDialogs.addEventAlertDialog(context);
+          await AlertDialogs.addEventAlertDialog(context,'/events');
           setState(() {});
         },
         child: const Icon(Icons.add_outlined),
