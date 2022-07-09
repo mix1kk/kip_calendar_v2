@@ -28,7 +28,7 @@ class Schedules {
 
   static getSchedule(String scheduleName) async {
     //чтение из базы данных
-    Schedules schedule = Variables.currentSchedule;
+    Schedules schedule = Variables.currentUserSchedule;
     await FirebaseFirestore.instance
         .collection('schedules')
         .doc(scheduleName)
@@ -72,7 +72,9 @@ class Users {
   String unit;
   String phoneNumber;
   String role;
+  List<int> schedule;
   bool isExpanded;
+
 
   Users(this.name,
       this.password,
@@ -84,6 +86,7 @@ class Users {
       this.unit,
       this.phoneNumber,
       this.role,
+      this.schedule,
       this.isExpanded);
 
 
@@ -104,6 +107,7 @@ class Users {
         'unit': user.unit,
         'phoneNumber': user.phoneNumber,
         'role': user.role,
+        'schedule': user.schedule,
         'isExpanded': user.isExpanded
       });
     });
@@ -129,6 +133,7 @@ class Users {
           documentSnapshot.get('unit'),
           documentSnapshot.get('phoneNumber'),
           documentSnapshot.get('role'),
+          documentSnapshot.get('schedule').cast<int>(),
           documentSnapshot.get('isExpanded')
       );
     });

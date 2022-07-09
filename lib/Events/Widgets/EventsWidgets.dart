@@ -62,6 +62,7 @@ class EventsWidgets {
       context, int index, DocumentSnapshot event) {
     //построение списка с названиями событий для всех пользователей
     Events newEvent = Events.getEventFromSnapshot(event);
+
     return Row(
       children: [
         Container(

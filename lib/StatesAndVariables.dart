@@ -6,6 +6,7 @@ import 'Database.dart';
 
 final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
  class Variables{
+   static List<int> schedule = List.filled(1460, 26);//для инициализации пользователя
    static double rowHeight = 40.0; // Высота строк
    static double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
    static List<Events>allEvents=[];
@@ -19,7 +20,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    19:'Б',
    26:'В',
   };
-  static Schedules currentSchedule=Schedules('0',List.filled(56, 26),false);
+  static Schedules currentUserSchedule=Schedules('0',List.filled(56, 26),false);
   static Schedules selectedSchedule=Schedules('',List.filled(56, 26),false);
   static void setSelectedUserNamePrefs (username)async{
    SharedPreferences prefs = await _prefs;
@@ -29,7 +30,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   static Future <void> getPrefs ()async{//считывание сохраненных данных(имя пользователя, график)
    SharedPreferences prefs = await _prefs;
       Variables.selectedUser = (prefs.getString('name')==null)?Variables.currentUser:await Users.getUserByName(prefs.getString('name')!);
-      currentSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
+      currentUserSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
       allEvents = await Events.getAllEventsForUser([Variables.selectedUser.name]);
       selectedUsers.add(Variables.selectedUser.name);
     }
@@ -45,6 +46,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
       'КИПиА',
       '8 987 654 32 10',
       'user',
+      schedule,
       false);
  static Users currentUser = Users(
      'user',
@@ -57,6 +59,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
      'КИПиА',
      '8 987 654 32 10',
      'user',
+     schedule,
      false);
 
 

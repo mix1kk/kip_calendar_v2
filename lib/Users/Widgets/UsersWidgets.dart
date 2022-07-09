@@ -112,6 +112,7 @@ class UsersWidgets {
                   data['unit'],
                   data['phoneNumber'],
                   data['role'],
+                  data['schedule'].cast<int>(),
                   !data['isExpanded'],
                 );
                 dateOfBirthController.text =
@@ -215,7 +216,6 @@ class UsersWidgets {
                     Variables.currentUser.dateOfEmployment, context);
                 dateOfEmploymentController.text = DateFormat.yMd()
                     .format(Variables.currentUser.dateOfEmployment);
-                //    FocusManager.instance.primaryFocus?.unfocus();
               }
             },
             decoration: const InputDecoration(
@@ -228,8 +228,6 @@ class UsersWidgets {
             decoration: const InputDecoration(
               labelText: 'График',
             ),
-            //initialValue: data['scheduleName'],
-            //  initialValue: Variables.currentUser.scheduleName,
             onTap: () {
               if (Variables.selectedUser.role == 'admin') {
                 Navigator.pushNamed(context, '/schedules');
@@ -301,6 +299,7 @@ class UsersWidgets {
                         data['unit'],
                         Variables.currentUser.phoneNumber,
                         data['role'],
+                        data['schedule'],
                         !data['isExpanded'],
                       ));
                     }

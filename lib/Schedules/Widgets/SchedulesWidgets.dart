@@ -101,18 +101,16 @@ class SchedulesWidgets {
             width:
             MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(
-              style: (Variables.currentSchedule.name == data['name'])
+              style: (Variables.selectedSchedule.name == data['name'])
                   ? ButtonStyles.headerButtonStyle
                   : ButtonStyles.usersListButtonStyle,
               onPressed: () {
                 if (Variables.selectedSchedule.name==data['name']) {
                   Variables.selectedSchedule.name='';
                 } else {
-                  // Variables.selectedSchedule.name=data['name'];
                   Variables.selectedSchedule = Schedules(data['name'],
                       data['schedule'].cast<int>(), !data['isExpanded']);
                 }
-                print(Variables.selectedSchedule.name);
                 Schedules.addSchedule(
                   //сделано для обновления экрана
                     data['name'],
@@ -153,7 +151,6 @@ class SchedulesWidgets {
                 children: schedulesMainScreenDataSample(
                     context, Variables.selectedSchedule.schedule),
               )),
-          //todo schedule
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -163,6 +160,7 @@ class SchedulesWidgets {
                     if (Variables.selectedUser.role == 'admin') {
                       AlertDialogs.deleteAlertDialogSchedulesScreen(
                           context, index);
+                      //todo: сделать подтверждение удаления графика работы
                     }
                   },
                   icon: const Icon(Icons.delete),
@@ -175,25 +173,24 @@ class SchedulesWidgets {
                           Variables.selectedSchedule.name,
                           Variables.selectedSchedule.schedule,
                           !Variables.selectedSchedule.isExpanded);
-                      //   Variables.currentSchedule.name = '0';
-                      //  States.isSchedulePressed = List.filled(100, false);
                       Navigator.pushNamed(context, '/schedules');
                     }
                   },
                   icon: const Icon(Icons.save),
                   label: const Text('Сохранить   ')),
+              //todo: всплывающее окно с подтверждением сохранения
               ElevatedButton.icon(
                   style: ButtonStyles.headerButtonStyle,
                   onPressed: () {
                     Variables.currentUser.scheduleName =
                         Variables.selectedSchedule.name;
-                    Variables.currentSchedule=Variables.selectedSchedule;
+                    Variables.currentUserSchedule=Variables.selectedSchedule;
                     scheduleNameController.text =
-                        Variables.currentSchedule.name;
+                        Variables.currentUserSchedule.name;
                     // States.isSchedulePressed = List.filled(100, false);
                     Navigator.pushNamed(context, '/users');
                   },
-                  icon: const Icon(Icons.adjust),
+                  icon: const Icon(Icons.add_task),
                   label: const Text('Выбрать   ')),
             ],
           )
@@ -247,14 +244,14 @@ class SchedulesWidgets {
                 DateTime(2022).subtract(const Duration(days: 5)))
                 .inDays %
                 56; //какой по счету день из 56 занимает текущий обрабатываемый
-            if (Variables.currentSchedule.schedule[number] == 1) {
-              Variables.currentSchedule.schedule[number] = 2;
-            } else if (Variables.currentSchedule.schedule[number] == 2) {
-              Variables.currentSchedule.schedule[number] = 26;
-            } else if (Variables.currentSchedule.schedule[number] == 26) {
-              Variables.currentSchedule.schedule[number] = 1;
+            if (Variables.currentUserSchedule.schedule[number] == 1) {
+              Variables.currentUserSchedule.schedule[number] = 2;
+            } else if (Variables.currentUserSchedule.schedule[number] == 2) {
+              Variables.currentUserSchedule.schedule[number] = 26;
+            } else if (Variables.currentUserSchedule.schedule[number] == 26) {
+              Variables.currentUserSchedule.schedule[number] = 1;
             }
-            style = ButtonStyles.dayStyle(day,Variables.currentSchedule.schedule, 'schedules');
+            style = ButtonStyles.dayStyle(day,Variables.currentUserSchedule.schedule, 'schedules');
             setState(() {});
           }
         //        dialogOnMainScreen();
@@ -318,7 +315,7 @@ class SchedulesWidgets {
             }
 
 
-            style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
+            style = ButtonStyles.dayStyle(week[day],Variables.currentUserSchedule.schedule,
                 callPlace); // раскрашивание дней в соответствии с графиком
           }
         } else {
@@ -334,7 +331,7 @@ class SchedulesWidgets {
             }
 
 
-            style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
+            style = ButtonStyles.dayStyle(week[day],Variables.currentUserSchedule.schedule,
                 callPlace); // раскрашивание дней в соответствии с графиком
           }
         }
@@ -365,7 +362,7 @@ class SchedulesWidgets {
     String dayNumberByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
       dayNumberByTK =
-          Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)
+          Schedules.getWorkingDay(day, Variables.currentUserSchedule.schedule)
               .toString(); //Номер дня по ТК
 //Обозначение дня по ТК
     }

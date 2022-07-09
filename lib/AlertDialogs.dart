@@ -169,7 +169,7 @@ class AlertDialogs {
                         Variables.currentUser.isExpanded =
                         !Variables.currentUser.isExpanded;
                         Users.addUser(Variables.currentUser);
-                        Variables.currentSchedule = await Schedules.getSchedule(
+                        Variables.currentUserSchedule = await Schedules.getSchedule(
                             Variables.selectedUser.scheduleName);
                         //сделано для обновления экрана
                         Navigator.of(context).pop();
@@ -540,7 +540,6 @@ class AlertDialogs {
 
     List<String> users = await Users.getAllUsersNames();
     List<String> selectedUsers = [Variables.selectedUser.name];
- //   bool userNameTapped = false;
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -625,14 +624,6 @@ class AlertDialogs {
                               },
                               icon: const Icon(Icons.group_add),
                               label: const Text('Выбрать всех   ')),
-                          // ElevatedButton.icon(
-                          //     style: ButtonStyles.headerButtonStyle,
-                          //     onPressed: () {
-                          //       userNameTapped = !userNameTapped;
-                          //       setState(() {});
-                          //     },
-                          //     icon: const Icon(Icons.done),
-                          //     label: const Text('Ок   ')),
 
                     ),
                       ]),
@@ -649,16 +640,20 @@ class AlertDialogs {
                         if (selectedUsers.isNotEmpty) {
                           Variables.selectedUsers=selectedUsers;
                           Variables.allEvents = await Events.getAllEventsForUser(Variables.selectedUsers);
-                          Navigator.of(context).pop();
+                          Navigator.pushNamed(
+                              context,
+                              link);
                         }
                         else {
                           Variables.selectedUsers =[Variables.selectedUser.name];
-                          Navigator.of(context).pop();
+                          Navigator.pushNamed(
+                              context,
+                              link);
                         }
                    // await
-                        Navigator.pushNamed(
-                            context,
-                            link);
+                   //      Navigator.pushNamed(
+                   //          context,
+                   //          link);
 
                     },
                   ),

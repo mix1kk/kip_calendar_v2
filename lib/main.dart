@@ -1,4 +1,3 @@
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'StatesAndVariables.dart';
 
-
 void main() async {
   initializeDateFormatting('ru', null);
   Intl.defaultLocale = 'ru';
@@ -24,9 +22,9 @@ void main() async {
 
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
 
   static void menuNavigationDialog(BuildContext context) {
     showDialog(
@@ -85,14 +83,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       initialRoute: '/calendar',
       routes: {
-        '/events': (context) =>  EventsScreen(stream: FirebaseFirestore.instance
-            .collection('events').where('userName',arrayContainsAny: Variables.selectedUsers)
-            .snapshots(),/*stream name: [Variables.selectedUser.name]*/),
-        '/schedules': (context) =>  const SchedulesScreen(),
+        '/events': (context) => EventsScreen(
+            stream: FirebaseFirestore.instance
+                .collection('events')
+                .where('userName', arrayContainsAny: Variables.selectedUsers)
+                .snapshots()),
+        '/schedules': (context) => const SchedulesScreen(),
         '/users': (context) => const UsersScreen(),
         '/calendar': (context) => const CalendarScreen(),
       },
-           theme: ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
     );
@@ -109,7 +109,6 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-
   static getNumberOfWeek(DateTime day) {
     //возвращает номер недели введенного дня
     final startOfYear = DateTime(day.year);
@@ -127,7 +126,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     //рассчет и выдача массива дат на текущую неделю
     DateTime firstDayOfWeek = day.subtract(Duration(days: day.weekday - 1));
     List<DateTime> week =
-    List.generate(7, (index) => firstDayOfWeek.add(Duration(days: index)));
+        List.generate(7, (index) => firstDayOfWeek.add(Duration(days: index)));
     return week;
   }
 
@@ -137,11 +136,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     Navigator.pushNamed(context, '/calendar');
   }
 
-   Widget mainBodyCalendarMonthScreen(DateTime day, context) {
+  Widget mainBodyCalendarMonthScreen(DateTime day, context) {
     //основная таблица  на экране CalendarMonthScreen
     return Expanded(
-      // child: RefreshIndicator(
-      //   onRefresh: pullRefresh,
       child: ListView.builder(itemBuilder: (context, index) {
         //скрытие прошедших месяцев
         DateTime lastDayOfWeek = day.add(Duration(
@@ -150,7 +147,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
         if (currentDay.day < 7) {
           States.isLastWeek = true;
         }
-
         if (States.isPulled) {
           Variables.rowHeight = 40.0;
         } else {
@@ -176,10 +172,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   border: Border.all(color: Colors.black12),
                   color: Colors.grey),
               width: double.infinity,
-              height: (currentDay.day < 8) ? Variables.rowHeight/2 : 0.0,
+              height: (currentDay.day < 8) ? Variables.rowHeight / 2 : 0.0,
               child: Center(
                 child: //Название месяца и год в начале каждого месяца
-                Text(DateFormat.yMMMM().format(currentDay).toUpperCase()),
+                    Text(DateFormat.yMMMM().format(currentDay).toUpperCase()),
               )),
           SizedBox(
             height: Variables.rowHeight,
@@ -196,13 +192,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-   Widget rowCalendarMonthScreen(
+  Widget rowCalendarMonthScreen(
       //Строка на экране CalendarMonthScreen
       String nameFirstColumn,
       List<dynamic> week,
       context,
       String
-      callPlace) //String callPlace - указать место, откуда произошел вызов функции для разного отображения в разных местах
+          callPlace) //String callPlace - указать место, откуда произошел вызов функции для разного отображения в разных местах
   {
     return SizedBox(
       height: Variables.rowHeight + 5,
@@ -224,7 +220,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-   List<Widget> weekCalendarMonthScreen(
+  List<Widget> weekCalendarMonthScreen(
       List<dynamic> week, context, String callPlace) {
     BoxDecoration boxDecoration = ButtonStyles.simpleBoxDecoration;
     // bool isEvent = false;
@@ -232,43 +228,64 @@ class _CalendarScreenState extends State<CalendarScreen> {
     List<Widget> widgets = [];
     var style =
         ButtonStyles.simpleDayButtonStyle; //инициализация переменной style
+    var secondStyle = ButtonStyles
+        .simpleDayButtonStyle; //инициализация переменной secondStyle
     for (int day = 0; day < 7; day++) {
-
       if (week[0] is! String) {
-
         if (States.isLastWeek) {
           //проверка является ли текущая неделя последней в месяце
           if (week[day].month != week[0].month && callPlace == 'main') {
             //отрисовка затемненных дней следующего месяца в последней неделе текущего месяца, если вызвано с главного экрана
             style = ButtonStyles.fadedDayButtonStyle;
+            secondStyle = style;
           } else {
+            for (int i = 0; i < Variables.allEvents.length; i++) {
+              //определение ивента в текущий день и окрашивание в цвет ивента
 
-            for (int i=0;i<Variables.allEvents.length;i++) {//определение ивента в текущий день и окрашивание в цвет ивента
-
-              if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
-                  (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
-              {boxDecoration = ButtonStyles.eventBoxDecoration;}
+              if ((Variables.setZeroTime(week[day]).compareTo(
+                          Variables.setZeroTime(
+                              Variables.allEvents[i].startDate)) >=
+                      0) &&
+                  (Variables.setZeroTime(week[day]).compareTo(
+                          Variables.setZeroTime(
+                              Variables.allEvents[i].endDate)) <=
+                      0)) {
+                boxDecoration = ButtonStyles.eventBoxDecoration;
+              }
             }
 
-
-            style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
+            style = ButtonStyles.dayStyle(
+                week[day],
+                Variables.currentUserSchedule.schedule,
                 callPlace); // раскрашивание дней в соответствии с графиком
+            secondStyle = ButtonStyles.dayStyle(
+                week[day], Variables.selectedSchedule.schedule, callPlace);
           }
         } else {
           if (week[day].month != week[6].month && callPlace == 'main') {
             //отрисовка затемненных дней предыдущего месяца в первой неделе текущего месяца, если вызвано с главного экрана
             style = ButtonStyles.fadedDayButtonStyle;
+            secondStyle = style;
           } else {
-
-            for (int i=0;i<Variables.allEvents.length;i++) {
-              if((Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].startDate))>=0)&&
-                  (Variables.setZeroTime (week[day]).compareTo(Variables.setZeroTime (Variables.allEvents[i].endDate))<=0))
-              {boxDecoration = ButtonStyles.eventBoxDecoration;}//определение ивента в текущий день для окрашивания рамки в цвет ивента
+            for (int i = 0; i < Variables.allEvents.length; i++) {
+              if ((Variables.setZeroTime(week[day]).compareTo(
+                          Variables.setZeroTime(
+                              Variables.allEvents[i].startDate)) >=
+                      0) &&
+                  (Variables.setZeroTime(week[day]).compareTo(
+                          Variables.setZeroTime(
+                              Variables.allEvents[i].endDate)) <=
+                      0)) {
+                boxDecoration = ButtonStyles.eventBoxDecoration;
+              } //определение ивента в текущий день для окрашивания рамки в цвет ивента
             }
 
-
-            style = ButtonStyles.dayStyle(week[day],Variables.currentSchedule.schedule,
+            style = ButtonStyles.dayStyle(
+                week[day],
+                Variables.currentUserSchedule.schedule,
                 callPlace); // раскрашивание дней в соответствии с графиком
+            secondStyle = ButtonStyles.dayStyle(
+                week[day], Variables.selectedSchedule.schedule, callPlace);
           }
         }
       }
@@ -276,14 +293,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
       widgets.add(
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
-          decoration:boxDecoration,
+          decoration: boxDecoration,
           width:
-          (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
-              7,
+              (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
+                  7,
           height: Variables.rowHeight,
           child: (callPlace == 'main')
-              ? dayCalendarMonthScreen(week[day], style, context)
-              : SchedulesWidgets.dayCalendarScheduleScreen(week[day], style, context),
+              ? dayCalendarMonthScreen(week[day], style, secondStyle, context)
+              : SchedulesWidgets.dayCalendarScheduleScreen(
+                  week[day], style, context),
         ),
       );
       boxDecoration = ButtonStyles.simpleBoxDecoration;
@@ -292,186 +310,197 @@ class _CalendarScreenState extends State<CalendarScreen> {
     return widgets;
   }
 
-  Widget dayCalendarMonthScreen(dynamic day, style, context) {
-    // List<Events> listEvents;
+  Widget dayCalendarMonthScreen(dynamic day, style, secondStyle, context) {
     BoxDecoration boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
     String dayNumberByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
       dayNumberByTK =
-          Schedules.getWorkingDay(day, Variables.currentSchedule.schedule)
+          Schedules.getWorkingDay(day, Variables.currentUserSchedule.schedule)
               .toString(); //Номер дня по ТК
 //Обозначение дня по ТК
     }
-    if (day is DateTime && Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.startSelection))>=0 &&
-        Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.endSelection))<=0
-    && style != ButtonStyles.fadedDayButtonStyle)
-    {
-      boxDecoration = ButtonStyles.selectedInnerBoxDecoration;
+    if (day is DateTime &&
+        Variables.setZeroTime(day)
+                .compareTo(Variables.setZeroTime(States.startSelection)) >=
+            0 &&
+        Variables.setZeroTime(day)
+                .compareTo(Variables.setZeroTime(States.endSelection)) <=
+            0 &&
+        style != ButtonStyles.fadedDayButtonStyle) {
+      boxDecoration = ButtonStyles
+          .selectedInnerBoxDecoration; //Здесь задается обрамление выделенного диапазона дат
+    } else {
+      boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
     }
-    else {boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;}
 
-    return
-      Container( // внутренний контейнер для исключения смешивания цвета внешнего контейнера и кнопки
-          decoration:  boxDecoration,
-          child:
-          ElevatedButton(
-            style: (day
-            is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
-                ? ButtonStyles.headerButtonStyle
-                : style,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: ((day is! String) && States.showDayTypes)
-                        ? Alignment.bottomCenter
-                        : Alignment.center,
-                    child: Text(
-                      (day is String) ? day : DateFormat.d().format(day),
-                    ),
+    return Container(
+        // внутренний контейнер для исключения смешивания цвета внешнего контейнера и кнопки
+        decoration: boxDecoration,
+        child: ElevatedButton(
+          style: (day
+                  is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
+              ? ButtonStyles.headerButtonStyle
+              : style,
+          child: Column(
+            children: [
+              Expanded(
+                child: Align(
+                  alignment: ((day is! String) && States.showDayTypes)
+                      ? Alignment.bottomCenter
+                      : Alignment.center,
+                  child: Text(
+                    (day is String) ? day : DateFormat.d().format(day),
                   ),
                 ),
-                SizedBox(
-                    height: ((day is! String) && States.showDayTypes) ? 13 : 0,
-                    child: ElevatedButton(
-                      style: ButtonStyles.fadedDayButtonStyle,
-                      child:
-                      Text(
-                        dayNumberByTK, //Номер дня по ТК
-                        style: const TextStyle(fontSize: 9),
+              ),
+              SizedBox(
+                  height: ((day is! String) && States.showDayTypes) ? 13 : 0,
+                  child: ElevatedButton(//кнопка для исключения смешивания цветов, задает белый фон в нижней части даты
+                    style:
+                    ButtonStyles.fadedDayButtonStyle,
+                    child: DecoratedBox(
+                      decoration:  BoxDecoration(
+                        border:(day is! String && States.showDayTypes)? const Border(
+                          top: BorderSide(color: Colors.white, width: 2),
+                        ):null
                       ),
-                      onPressed: (){},
-                    )
-                ),
-              ],
-            ),
-            onLongPress: () {
-              if(Variables.selectedUser.role=='admin') {
-                // var stream= FirebaseFirestore.instance
-                //     .collection('events')
-                //     .snapshots();
+                      child: ElevatedButton(
+                        style: secondStyle,
+                        child: Text(
+                          dayNumberByTK, //Номер дня по ТК
+                          style: const TextStyle(fontSize: 9),
+                        ),
+                        onPressed: () {},
+                      ),
+                    ),
+                    onPressed: () {},
+                  )),
+            ],
+          ),
+          onLongPress: () {
+            if (Variables.selectedUser.role == 'admin') {
+              // var stream= FirebaseFirestore.instance
+              //     .collection('events')
+              //     .snapshots();
 
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EventsScreen(
-                        stream:
-                        //Events.streamFromList(Variables.selectedUsers);
-                        //stream
-
-                        FirebaseFirestore.instance
-                            .collection('events')
-                            .snapshots()
-                    )));
-                //todo: возможно сделать формирование потока на основе выбранных критериев
-              }
-              else{Navigator.push(
+              Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => EventsScreen(
-                      stream: FirebaseFirestore.instance
-                          .collection('events')
-                          .where('userName',arrayContainsAny: Variables.selectedUsers)
-                          .snapshots())));}
-              // if (day is! String) {
-              //   listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
-              //   Navigator.pushNamed(context, '/calendarDay');
-              // }
-              //todo считывание всех ивентов для данного пользователя в кликнутую дату
-              //        dialogOnMainScreen();
-            },
-            onPressed: (){//выбор диапазона дат
-              if (States.startSelection == DateTime(2022)) {
-                States.startSelection = day;
-                States.endSelection = day;
-              }
-              else {
-                if( day == States.startSelection){
+                  MaterialPageRoute(
+                      builder: (context) => EventsScreen(
+                          stream:
+                              //Events.streamFromList(Variables.selectedUsers);
+                              //stream
+
+                              FirebaseFirestore.instance
+                                  .collection('events')
+                                  .snapshots())));
+              //todo: возможно сделать формирование потока на основе выбранных критериев
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EventsScreen(
+                          stream: FirebaseFirestore.instance
+                              .collection('events')
+                              .where('userName',
+                                  arrayContainsAny: Variables.selectedUsers)
+                              .snapshots())));
+            }
+            //todo считывание всех ивентов для данного пользователя в кликнутую дату
+          },
+          onPressed: () {
+            //выбор диапазона дат
+            if (States.startSelection == DateTime(2022)) {
+              States.startSelection = day;
+              States.endSelection = day;
+            } else {
+              if (day == States.startSelection) {
+                States.startSelection = DateTime(2022);
+                States.endSelection = DateTime(2022);
+              } else {
+                if (States.startSelection != States.endSelection) {
                   States.startSelection = DateTime(2022);
                   States.endSelection = DateTime(2022);
+                } else {
+                  States.endSelection = day;
                 }
-                else{
-
-                  if( States.startSelection != States.endSelection) {
-                    States.startSelection = DateTime(2022);
-                    States.endSelection = DateTime(2022);
-                  }
-                  else{
-                    States.endSelection=day;
-                  }
-                  if (Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.startSelection))<0)
-                  {
-                    States.endSelection = States.startSelection;
-                    States.startSelection = day;
-                  }
+                if (Variables.setZeroTime(day).compareTo(
+                        Variables.setZeroTime(States.startSelection)) <
+                    0) {
+                  States.endSelection = States.startSelection;
+                  States.startSelection = day;
                 }
-
               }
-        setState(() {
-
-        });
-
-            },
-          )
-      )
-    ;
+            }
+            setState(() {});
+          },
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
-
     return RefreshIndicator(
-      onRefresh:() {return /*Widgets.*/pullRefresh(context);},
+      onRefresh: () {
+        return /*Widgets.*/ pullRefresh(context);
+      },
       child: Scaffold(
         appBar: AppBar(
           actions: [
-            IconButton(icon: const Icon(Icons.update),
-            onPressed: (){
-              States.showDayTypes=!States.showDayTypes;
-              setState(() {
-              });
-            },),
-            IconButton(icon: const Icon(Icons.list),
-              onPressed: (){
+            IconButton(
+              icon: const Icon(Icons.update),
+              onPressed: () {
+                States.showDayTypes = !States.showDayTypes;
+                setState(() {});
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.list),
+              onPressed: () {
                 MyApp.menuNavigationDialog(context);
-              },)
+              },
+            )
           ],
-          title:
-          Column(
+          title: Column(
             children: [
               const Align(
                 alignment: Alignment.topCenter,
-                child: Text('Календарь', style: TextStyle(fontSize: 20.0)) ,
+                child: Text('Календарь', style: TextStyle(fontSize: 20.0)),
               ),
               SizedBox(
-                height: 20.0,
-                width: MediaQuery.of(context).size.width - 20,
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: TextButton(
-                    style: ButtonStyle(foregroundColor: MaterialStateProperty.all(Colors.white),
-                    padding: MaterialStateProperty.all(EdgeInsets.zero) ),
-                    child:
-                   Text(Variables.selectedUsers.toString(),style: const TextStyle(fontSize: 12.0)),
-                    onPressed: ()async {
-                      await AlertDialogs.selectUsersAlertDialog(context,'/calendar');
-                    },
-                  ),
-                )
-              ),
+                  height: 20.0,
+                  width: MediaQuery.of(context).size.width - 20,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: TextButton(
+                      style: ButtonStyle(
+                          foregroundColor:
+                              MaterialStateProperty.all(Colors.white),
+                          padding: MaterialStateProperty.all(EdgeInsets.zero)),
+                      child: Text(Variables.selectedUsers.toString(),
+                          style: const TextStyle(fontSize: 12.0)),
+                      onPressed: () async {
+                        await AlertDialogs.selectUsersAlertDialog(
+                            context, '/calendar');
+                      },
+                    ),
+                  )),
             ],
           ),
         ),
         body: Column(
           children: [
-            /*Widgets.*/rowCalendarMonthScreen(
+            /*Widgets.*/ rowCalendarMonthScreen(
                 //Заголовок на основном экране с названиями дней недели
                 'Неделя',
-                ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],context,'main'),
-            /*Widgets.*/mainBodyCalendarMonthScreen(DateTime(2022),context),
+                ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'],
+                context,
+                'main'),
+            /*Widgets.*/ mainBodyCalendarMonthScreen(DateTime(2022), context),
           ],
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            await AlertDialogs.addEventAlertDialog(context,'/calendar');
+            await AlertDialogs.addEventAlertDialog(context, '/calendar');
             setState(() {});
           },
           child: const Icon(Icons.add_outlined),
