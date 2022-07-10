@@ -408,39 +408,7 @@ class SchedulesWidgets {
                 ),
               ],
             ),
-            onLongPress: () {
-              if(Variables.selectedUser.role=='admin') {
-                // var stream= FirebaseFirestore.instance
-                //     .collection('events')
-                //     .snapshots();
-
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => EventsScreen(
-                        stream:
-                        //Events.streamFromList(Variables.selectedUsers);
-                        //stream
-
-                        FirebaseFirestore.instance
-                            .collection('events')
-                            .snapshots()
-                    )));
-                //todo: возможно сделать формирование потока на основе выбранных критериев
-              }
-              else{Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => EventsScreen(
-                      stream: FirebaseFirestore.instance
-                          .collection('events')
-                          .where('userName',arrayContainsAny: Variables.selectedUsers)
-                          .snapshots())));}
-              // if (day is! String) {
-              //   listEvents=await Events.getAllEventsToDate(day, [Variables.selectedUser.name]);
-              //   Navigator.pushNamed(context, '/calendarDay');
-              // }
-              //todo считывание всех ивентов для данного пользователя в кликнутую дату
-              //        dialogOnMainScreen();
-            },
+            onLongPress: () {},
             onPressed: (){
               if (States.startSelection == DateTime(2022)) {
                 States.startSelection = day;

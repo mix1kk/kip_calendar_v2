@@ -7,8 +7,10 @@ import '../Database.dart';
 import 'Widgets/EventsWidgets.dart';
 
 class EventsScreen extends StatefulWidget {
-  const EventsScreen({Key? key, required this.stream}) : super(key: key);
+  const EventsScreen({Key? key, required this.stream, required this.isDateSorted, required this.date}) : super(key: key);
  final Stream <QuerySnapshot> stream;
+ final bool isDateSorted;
+ final DateTime date;
   @override
   State<EventsScreen> createState() => _EventsScreenState();
 }
@@ -68,7 +70,7 @@ class _EventsScreenState extends State<EventsScreen> {
       ),
       body: Column(
         children: [
-          EventsWidgets.eventsScreen(context, widget.stream/*widget.name*/),
+          EventsWidgets.eventsScreen(context, widget.stream, widget.isDateSorted, widget.date),
         ],
       ),
       floatingActionButton: FloatingActionButton(

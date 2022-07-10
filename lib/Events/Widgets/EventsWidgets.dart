@@ -14,13 +14,8 @@ final TextEditingController dateOfNotificationEventController =
 class EventsWidgets {
   static Widget eventsScreen(
       context,
-      /* List<String> name,*/
-      Stream<QuerySnapshot> stream) {
-    // Stream <QuerySnapshot> stream = FirebaseFirestore.instance
-    //     .collection('events')//.where('userName',arrayContainsAny: name)
-    //     .snapshots();
-
-//основная таблица  на экране Events
+      Stream<QuerySnapshot> stream, bool isDateSorted, DateTime date) {
+//основная таблица  наэкране Events
     return Expanded(
         child: StreamBuilder<QuerySnapshot>(
             stream: stream,
@@ -41,7 +36,7 @@ class EventsWidgets {
                       eventsMainScreenName(
                         context,
                         index,
-                        events.data!.docs[index],
+                        events.data!.docs[index],isDateSorted, date
                       ),
                       SizedBox(
                         height:
@@ -59,15 +54,24 @@ class EventsWidgets {
   }
 
   static Widget eventsMainScreenName(
-      context, int index, DocumentSnapshot event) {
+      context, int index, DocumentSnapshot event, bool isDateSorted, DateTime date ) {
     //построение списка с названиями событий для всех пользователей
+    bool isVisible=false;
     Events newEvent = Events.getEventFromSnapshot(event);
-
+    if (isDateSorted &&  Variables.setZeroTime(date)
+        .compareTo(Variables.setZeroTime(newEvent.startDate)) >=
+        0 &&
+        Variables.setZeroTime(date)
+            .compareTo(Variables.setZeroTime(newEvent.endDate)) <=
+            0) {
+      isVisible = true;
+    }
+    if (!isDateSorted) {isVisible = true;}
     return Row(
       children: [
         Container(
             padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
+            height: isVisible?Variables.rowHeight * 2:0,//если не входит в диапазон дат, скрываем
             width: Variables.firstColumnWidth,
             child: ElevatedButton(
               style: ButtonStyles.headerButtonStyle,
@@ -76,7 +80,7 @@ class EventsWidgets {
             )),
         Container(
             padding: const EdgeInsets.all(2.0),
-            height: Variables.rowHeight * 2,
+            height: isVisible?Variables.rowHeight * 2:0,
             width:
                 MediaQuery.of(context).size.width - Variables.firstColumnWidth,
             child: ElevatedButton(

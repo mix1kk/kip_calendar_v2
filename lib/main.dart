@@ -87,7 +87,7 @@ class MyApp extends StatelessWidget {
             stream: FirebaseFirestore.instance
                 .collection('events')
                 .where('userName', arrayContainsAny: Variables.selectedUsers)
-                .snapshots()),
+                .snapshots(),isDateSorted: false, date: DateTime.now()),
         '/schedules': (context) => const SchedulesScreen(),
         '/users': (context) => const UsersScreen(),
         '/calendar': (context) => const CalendarScreen(),
@@ -131,7 +131,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   static Future<void> pullRefresh(context) async {
-    // await Future.delayed(const Duration(seconds: 1));
     States.isPulled = !States.isPulled;
     Navigator.pushNamed(context, '/calendar');
   }
@@ -388,12 +387,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   MaterialPageRoute(
                       builder: (context) => EventsScreen(
                           stream:
-                              //Events.streamFromList(Variables.selectedUsers);
-                              //stream
-
                               FirebaseFirestore.instance
                                   .collection('events')
-                                  .snapshots())));
+                                  .snapshots(), isDateSorted: true, date: day )));
               //todo: возможно сделать формирование потока на основе выбранных критериев
             } else {
               Navigator.push(
@@ -404,7 +400,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               .collection('events')
                               .where('userName',
                                   arrayContainsAny: Variables.selectedUsers)
-                              .snapshots())));
+                              .snapshots(),isDateSorted: true, date: day)));
             }
             //todo считывание всех ивентов для данного пользователя в кликнутую дату
           },
