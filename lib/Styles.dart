@@ -53,6 +53,38 @@ static BoxDecoration selectedInnerBoxDecoration = BoxDecoration(
       borderRadius: const BorderRadius.all(Radius.circular(5))
   );
 
+  static ButtonStyle activeEventButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
+      textStyle:
+      MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.amberAccent),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.all(0.0)));
+  static ButtonStyle otgulButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
+      textStyle:
+      MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.all(0.0)));
+  static ButtonStyle vacationButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
+      textStyle:
+      MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.all(0.0)));
+  static ButtonStyle illnessButtonStyle = ButtonStyle(
+      elevation: MaterialStateProperty.all(0.0),
+      textStyle:
+      MaterialStateProperty.all<TextStyle>(const TextStyle(fontSize: 15)),
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.teal),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.all(0.0)));
 
   static ButtonStyle usersListButtonStyle = ButtonStyle(
       textStyle:

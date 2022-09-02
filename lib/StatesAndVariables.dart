@@ -16,10 +16,23 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    6: 'К',
    9: 'ОТ',
    10: 'ОД',
+   11: 'У',
+   16: 'ДО',
    17:'ОЗ',
    19:'Б',
+   24: 'ПР',
    26:'В',
   };
+  static  List<String> typesOfEvents = [
+    'Событие',
+    'Отпуск',
+    'Дополнительный отпуск',
+    'Учебный отпуск',
+    'Больничный',
+    'Прогул',
+    'Отгул',
+    'Изменение графика'
+  ];
   static Schedules currentUserSchedule=Schedules('0',List.filled(56, 26),false);
   static Schedules selectedSchedule=Schedules('',List.filled(56, 26),false);
   static void setSelectedUserNamePrefs (username)async{
@@ -87,7 +100,7 @@ return beginningOfDay;
 }
 
 class States{
- static bool showDayTypes = false;
+ static bool showDayTypes = true;
  static bool isPulled = false;
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);

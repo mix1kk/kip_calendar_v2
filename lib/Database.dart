@@ -159,7 +159,39 @@ class Users {
     await FirebaseFirestore.instance.collection('users').doc(userName).delete();
     // _selectedSchedule=scheduleName;
   }
+  static addToUserSchedule (int numberForSchedule , Events event)
+  async {
+    int difference = event.endDate.difference(event.startDate).inDays;
+    for (int i = 0; i < event.userName.length; i++)  {
+      Users user = await getUserByName(event.userName[i]);
+
+      for (int j =0; j<difference+1; j++) {
+        user.schedule[event.startDate.difference(DateTime(2022)).inDays+j] = numberForSchedule;
+      }
+      await addUser(user);
+        }
+  }
+
+  static updateAllEventsForUser (Users user)
+  async {
+    for (int a =0; a<user.schedule.length; a++) {
+      user.schedule[a]=26;
+    }
+
+    List <Events> allEventsForUser = await Events.getAllEventsForUser([user.name]);
+      for (int i =0; i<allEventsForUser.length; i++) {
+        int difference = allEventsForUser[i].endDate.difference(allEventsForUser[i].startDate).inDays;
+        for (int j =0; j<difference+1; j++) {
+          user.schedule[allEventsForUser[i].startDate.difference(DateTime(2022)).inDays+j] = await Events.checkForTypeOfEvent(allEventsForUser[i]);
+        }
+
+      }
+      await addUser(user);
+
+  }
 }
+
+
 
 class Events {
   List<String> userName;
@@ -193,18 +225,71 @@ class Events {
  //    return FirebaseFirestore.instance.collection('users').doc(username).collection('events').snapshots();
  //  }
 
-
-
+// static checkForTypeOfEvent(Events event) async{
+//   if (event.typeOfEvent=='Больничный')  {
+//     await Users.addToUserSchedule(19,event);
+//   }
+//   if (event.typeOfEvent=='Отпуск')  {
+//     await Users.addToUserSchedule(9,event);
+//   }
+//   if (event.typeOfEvent=='Дополнительный отпуск')  {
+//     await Users.addToUserSchedule(10,event);
+//   }
+//   if (event.typeOfEvent=='Учебный отпуск')  {
+//     await Users.addToUserSchedule(11,event);
+//   }
+//   if (event.typeOfEvent=='Отгул')  {
+//     await Users.addToUserSchedule(16,event);
+//   }
+//   if (event.typeOfEvent=='Прогул')  {
+//     await Users.addToUserSchedule(24,event);
+//   }
+// }
+  static Future<int> checkForTypeOfEvent(Events event) async{
+    if (event.typeOfEvent=='Больничный')  {
+      return 19;
+    }
+    else {
+      if (event.typeOfEvent == 'Отпуск') {
+        return 9;
+      }
+      else {
+        if (event.typeOfEvent == 'Дополнительный отпуск') {
+          return 10;
+        }
+        else {
+          if (event.typeOfEvent == 'Учебный отпуск') {
+            return 11;
+          }
+          else {
+            if (event.typeOfEvent == 'Отгул') {
+              return 16;
+            }
+            else {
+              if (event.typeOfEvent == 'Прогул') {
+                return 24;
+              }
+              else {
+                return 26;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
     static Future addEvent(
       Events newEvent
       ) async {
-
+    for (int i=0;i<newEvent.userName.length;i++) {
+      Users.updateAllEventsForUser(await Users.getUserByName(newEvent.userName[i]));
+      //  await checkForTypeOfEvent(newEvent);
+    }
           await FirebaseFirestore.instance
               .collection('events')
               .doc()
               .set({
             'userName':newEvent.userName,
-            //'userName': newEvent.userName,
             'event': newEvent.event,
             'startDate': newEvent.startDate,
             'endDate': newEvent.endDate,
@@ -215,11 +300,17 @@ class Events {
             'isVisible': newEvent.isVisible,
             'isExpanded' : newEvent.isExpanded
       });
+
+
   }
   static Future updateEvent(
       Events newEvent,id
       ) async {
-
+    for (int i=0;i<newEvent.userName.length;i++) {
+      Users.updateAllEventsForUser(await Users.getUserByName(newEvent.userName[i]));
+      //  await checkForTypeOfEvent(newEvent);
+    }
+    // await checkForTypeOfEvent(newEvent);
       await FirebaseFirestore.instance
           .collection('events')
           .doc(id)
@@ -277,6 +368,7 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
       await FirebaseFirestore.instance
           .collection('events')
           .where('userName',arrayContains: names[i])
+          .orderBy('startDate')
           .get()
           .then((QuerySnapshot querySnapshot) {
         querySnapshot.docs.forEach((doc) {
@@ -305,11 +397,27 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
 
   static Future deleteEvent(String id) async {
     //удаление события из базы данных
+     await FirebaseFirestore.instance
+        .collection('events')
+        .doc(id)
+        .get()
+        .then((DocumentSnapshot documentSnapshot)  async {
+           Events event = getEventFromSnapshot(documentSnapshot);
+           for (int i=0;i<event.userName.length;i++) {
+             Users.updateAllEventsForUser(await Users.getUserByName(event.userName[i]));
+       //  await checkForTypeOfEvent(newEvent);
+     }
+           // if (event.typeOfEvent!='Событие')  {
+           //    Users.addToUserSchedule(26,event);
+           // }
+    });
+
     await FirebaseFirestore.instance
         .collection('events')
         .doc(id)
         .delete();
-
+     Variables.allEvents = await Events.getAllEventsForUser(
+         Variables.selectedUsers);
   }
   static Future deleteAllEvents() async {//todo: не забыть убрать эту функцию
     //удаление всех событий из базы данных

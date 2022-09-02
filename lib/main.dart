@@ -87,7 +87,9 @@ class MyApp extends StatelessWidget {
             stream: FirebaseFirestore.instance
                 .collection('events')
                 .where('userName', arrayContainsAny: Variables.selectedUsers)
-                .snapshots(),isDateSorted: false, date: DateTime.now()),
+                .snapshots(),
+            isDateSorted: false,
+            date: DateTime.now()),
         '/schedules': (context) => const SchedulesScreen(),
         '/users': (context) => const UsersScreen(),
         '/calendar': (context) => const CalendarScreen(),
@@ -149,7 +151,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         if (States.isPulled) {
           Variables.rowHeight = 40.0;
         } else {
-          if ((currentDay.month) < DateTime.now().month) {
+          if (((currentDay.month) < DateTime.now().month) &&
+              (currentDay.year == DateTime.now().year)) {
             Variables.rowHeight = 0.0;
           } else {
             Variables.rowHeight = 40.0;
@@ -221,14 +224,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   List<Widget> weekCalendarMonthScreen(
       List<dynamic> week, context, String callPlace) {
-    BoxDecoration boxDecoration = ButtonStyles.simpleBoxDecoration;
+    //  BoxDecoration boxDecoration = ButtonStyles.simpleBoxDecoration;
     // bool isEvent = false;
     //7 дней недели в строке на экране CalendarMonthScreen
     List<Widget> widgets = [];
-    var style =
-        ButtonStyles.simpleDayButtonStyle; //инициализация переменной style
+    var style = ButtonStyles
+        .simpleDayButtonStyle; //инициализация переменной style - она отвечает за цвет рамки в соответствии с событиями
     var secondStyle = ButtonStyles
-        .simpleDayButtonStyle; //инициализация переменной secondStyle
+        .simpleDayButtonStyle; //инициализация переменной secondStyle- она отвечает за цвет дней в соответствии с графиком
     for (int day = 0; day < 7; day++) {
       if (week[0] is! String) {
         if (States.isLastWeek) {
@@ -238,8 +241,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
             style = ButtonStyles.fadedDayButtonStyle;
             secondStyle = style;
           } else {
+            // раскрашивание дней в соответствии с графиком
+            secondStyle = ButtonStyles.dayStyle(
+                week[day], Variables.currentUserSchedule.schedule, callPlace);
+            style = secondStyle;
             for (int i = 0; i < Variables.allEvents.length; i++) {
-              //определение ивента в текущий день и окрашивание в цвет ивента
+              //определение ивента в текущий день и окрашивание рамки в цвет ивента
 
               if ((Variables.setZeroTime(week[day]).compareTo(
                           Variables.setZeroTime(
@@ -249,16 +256,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           Variables.setZeroTime(
                               Variables.allEvents[i].endDate)) <=
                       0)) {
-                boxDecoration = ButtonStyles.eventBoxDecoration;
-              }
-            }
+                if (Variables.allEvents[i].typeOfEvent == 'Больничный') {
+                  style = ButtonStyles.illnessButtonStyle;
+                } else {
+                  if ((Variables.allEvents[i].typeOfEvent == 'Отпуск') ||
+                      (Variables.allEvents[i].typeOfEvent ==
+                          'Дополнительный отпуск') ||
+                      (Variables.allEvents[i].typeOfEvent ==
+                          'Учебный отпуск')) {
+                    style = ButtonStyles.vacationButtonStyle;
 
-            style = ButtonStyles.dayStyle(
-                week[day],
-                Variables.currentUserSchedule.schedule,
-                callPlace); // раскрашивание дней в соответствии с графиком
-            secondStyle = ButtonStyles.dayStyle(
-                week[day], Variables.selectedSchedule.schedule, callPlace);
+                  } else {
+                    if ((Variables.allEvents[i].typeOfEvent == 'Прогул') ||
+                        (Variables.allEvents[i].typeOfEvent == 'Отгул')) {
+                      style = ButtonStyles.otgulButtonStyle;
+                    } else {
+                      style = ButtonStyles.activeEventButtonStyle;
+                      // boxDecoration = ButtonStyles.eventBoxDecoration;
+                    }
+                  }
+                }
+              }
+            } //определение ивента в текущий день и окрашивание рамки в цвет ивента
+
           }
         } else {
           if (week[day].month != week[6].month && callPlace == 'main') {
@@ -266,7 +286,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
             style = ButtonStyles.fadedDayButtonStyle;
             secondStyle = style;
           } else {
+            style = ButtonStyles.dayStyle(
+                // раскрашивание дней в соответствии с графиком
+                week[day],
+                Variables.currentUserSchedule.schedule,
+                callPlace);
+            secondStyle = ButtonStyles.dayStyle(
+                week[day],
+                Variables.currentUserSchedule.schedule,
+                callPlace); // раскрашивание дней в соответствии с графиком
+
             for (int i = 0; i < Variables.allEvents.length; i++) {
+              //определение ивента в текущий день для окрашивания рамки в цвет ивента
               if ((Variables.setZeroTime(week[day]).compareTo(
                           Variables.setZeroTime(
                               Variables.allEvents[i].startDate)) >=
@@ -275,16 +306,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           Variables.setZeroTime(
                               Variables.allEvents[i].endDate)) <=
                       0)) {
-                boxDecoration = ButtonStyles.eventBoxDecoration;
-              } //определение ивента в текущий день для окрашивания рамки в цвет ивента
-            }
+                if (Variables.allEvents[i].typeOfEvent == 'Больничный') {
+                  style = ButtonStyles.illnessButtonStyle;
+                } else {
+                  if ((Variables.allEvents[i].typeOfEvent == 'Отпуск') ||
+                      (Variables.allEvents[i].typeOfEvent ==
+                          'Дополнительный отпуск') ||
+                      (Variables.allEvents[i].typeOfEvent ==
+                          'Учебный отпуск')) {
+                    style = ButtonStyles.vacationButtonStyle;
 
-            style = ButtonStyles.dayStyle(
-                week[day],
-                Variables.currentUserSchedule.schedule,
-                callPlace); // раскрашивание дней в соответствии с графиком
-            secondStyle = ButtonStyles.dayStyle(
-                week[day], Variables.selectedSchedule.schedule, callPlace);
+                  } else {
+                    if ((Variables.allEvents[i].typeOfEvent == 'Прогул') ||
+                        (Variables.allEvents[i].typeOfEvent == 'Отгул')) {
+                      style = ButtonStyles.otgulButtonStyle;
+                    } else {
+                      style = ButtonStyles.activeEventButtonStyle;
+                      // boxDecoration = ButtonStyles.eventBoxDecoration;
+                    }
+                  }
+                }
+              } //*определение ивента в текущий день для окрашивания рамки в цвет ивента
+            }
           }
         }
       }
@@ -292,7 +335,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       widgets.add(
         Container(
           padding: const EdgeInsets.fromLTRB(2.0, 2.0, 2.0, 2.0),
-          decoration: boxDecoration,
+          // decoration: boxDecoration,
           width:
               (MediaQuery.of(context).size.width - Variables.firstColumnWidth) /
                   7,
@@ -303,7 +346,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   week[day], style, context),
         ),
       );
-      boxDecoration = ButtonStyles.simpleBoxDecoration;
+      //   boxDecoration = ButtonStyles.simpleBoxDecoration;
     }
     States.isLastWeek = false;
     return widgets;
@@ -311,11 +354,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Widget dayCalendarMonthScreen(dynamic day, style, secondStyle, context) {
     BoxDecoration boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
-    String dayNumberByTK = '';
+    // String dayNumberByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
-      dayNumberByTK =
+      /* dayNumberByTK =
           Schedules.getWorkingDay(day, Variables.currentUserSchedule.schedule)
-              .toString(); //Номер дня по ТК
+              .toString(); */ //Номер дня по ТК
 //Обозначение дня по ТК
     }
     if (day is DateTime &&
@@ -340,7 +383,53 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
               ? ButtonStyles.headerButtonStyle
               : style,
-          child: Column(
+          child: Container(
+            padding: States.showDayTypes
+                ? const EdgeInsets.all(4.0)
+                : const EdgeInsets.all(0.0),
+            child: ElevatedButton(
+              //для задания фона чтобы исключить смешивание цветов
+              style: (day
+                      is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
+                  ? ButtonStyles.headerButtonStyle
+                  : ButtonStyles.fadedDayButtonStyle,
+              child: ElevatedButton(
+                style: (day
+                        is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
+                    ? ButtonStyles.headerButtonStyle
+                    : secondStyle,
+                child: Text((day is String) ? day : DateFormat.d().format(day)),
+                onPressed: () {
+                  //выбор и выделение диапазона дат
+                  if (States.startSelection == DateTime(2022)) {
+                    States.startSelection = day;
+                    States.endSelection = day;
+                  } else {
+                    if (day == States.startSelection) {
+                      States.startSelection = DateTime(2022);
+                      States.endSelection = DateTime(2022);
+                    } else {
+                      if (States.startSelection != States.endSelection) {
+                        States.startSelection = DateTime(2022);
+                        States.endSelection = DateTime(2022);
+                      } else {
+                        States.endSelection = day;
+                      }
+                      if (Variables.setZeroTime(day).compareTo(
+                              Variables.setZeroTime(States.startSelection)) <
+                          0) {
+                        States.endSelection = States.startSelection;
+                        States.startSelection = day;
+                      }
+                    }
+                  }
+                  setState(() {});
+                },
+              ),
+              onPressed: () {},
+            ),
+          ),
+          /* Column(
             children: [
               Expanded(
                 child: Align(
@@ -375,7 +464,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     onPressed: () {},
                   )),
             ],
-          ),
+          ),*/
           onLongPress: () {
             if (Variables.selectedUser.role == 'admin') {
               // var stream= FirebaseFirestore.instance
@@ -386,10 +475,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => EventsScreen(
-                          stream:
-                              FirebaseFirestore.instance
-                                  .collection('events')
-                                  .snapshots(), isDateSorted: true, date: day )));
+                          stream: FirebaseFirestore.instance
+                              .collection('events')
+                              .snapshots(),
+                          isDateSorted: true,
+                          date: day)));
               //todo: возможно сделать формирование потока на основе выбранных критериев
             } else {
               Navigator.push(
@@ -400,12 +490,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               .collection('events')
                               .where('userName',
                                   arrayContainsAny: Variables.selectedUsers)
-                              .snapshots(),isDateSorted: true, date: day)));
+                              .snapshots(),
+                          isDateSorted: true,
+                          date: day)));
             }
             //todo считывание всех ивентов для данного пользователя в кликнутую дату
           },
           onPressed: () {
-            //выбор диапазона дат
+            /* //выбор диапазона дат
             if (States.startSelection == DateTime(2022)) {
               States.startSelection = day;
               States.endSelection = day;
@@ -428,7 +520,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 }
               }
             }
-            setState(() {});
+            setState(() {});*/
           },
         ));
   }
@@ -509,4 +601,3 @@ class _CalendarScreenState extends State<CalendarScreen> {
 //todo : добавить сортировку пользователей по параметрам
 //todo: вылетает ошибка при попытке загрузки несуществующего графика
 //todo: сделать в каждом пользователе отдельный массив изменений в графике работы
-//todo: сделать отображение и сортировку событий

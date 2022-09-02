@@ -91,9 +91,11 @@ class EventsWidgets {
                 if (event.id == States.eventPressed) {
                   States.eventPressed = '';
                   Variables.currentEvent = Variables.initialEvent;
+                  typeOfEventController.text = Variables.initialEvent.typeOfEvent;
                 } else {
                   States.eventPressed = event.id;
-                  Variables.currentEvent = newEvent;
+                  Variables.currentEvent = Variables.allEvents[index];
+                  typeOfEventController.text = Variables.allEvents[index].typeOfEvent;
                   startDateEventController.text =
                       DateFormat.yMd().format(Variables.currentEvent.startDate);
                   dateOfNotificationEventController.text = DateFormat.yMd()
@@ -101,10 +103,10 @@ class EventsWidgets {
                   endDateEventController.text =
                       DateFormat.yMd().format(Variables.currentEvent.endDate);
                 } //для окрашивания выбранного ивента
-                newEvent.isExpanded =
-                    !newEvent.isExpanded; //для обновления экрана
+                Variables.allEvents[index].isExpanded =
+                    !Variables.allEvents[index].isExpanded; //для обновления экрана
                 await Events.updateEvent(
-                    newEvent, event.id); //для обновления экрана
+                    Variables.allEvents[index], event.id); //для обновления экрана
               },
               child: ListTile(
                 title: Text(newEvent.event),
@@ -182,15 +184,19 @@ class EventsWidgets {
               labelText: 'Дата напоминания',
             ),
           ),
+
           TextFormField(
-            readOnly: Variables.selectedUser.role != 'admin',
+            readOnly: true,
+            controller: typeOfEventController,
             decoration: const InputDecoration(
               labelText: 'Тип события',
             ),
-            initialValue: Variables.currentEvent.typeOfEvent,
-            onChanged: (value) {
-              Variables.currentEvent.typeOfEvent = value;
-            },
+          //  initialValue: Variables.currentEvent.typeOfEvent,
+            onTap: () async { await AlertDialogs.selectEventType(context);},
+
+            // onChanged: (value) {
+            //   Variables.currentEvent.typeOfEvent = value;
+            // },
           ),
           TextFormField(
             readOnly: Variables.selectedUser.role != 'admin',

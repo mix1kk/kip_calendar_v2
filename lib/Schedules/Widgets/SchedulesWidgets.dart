@@ -358,7 +358,7 @@ class SchedulesWidgets {
 
   static Widget dayCalendarMonthScreen(dynamic day, style, context) {
     // List<Events> listEvents;
-    BoxDecoration boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
+//    BoxDecoration boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;
     String dayNumberByTK = '';
     if (day is DateTime && style != ButtonStyles.fadedDayButtonStyle) {
       dayNumberByTK =
@@ -366,74 +366,70 @@ class SchedulesWidgets {
               .toString(); //Номер дня по ТК
 //Обозначение дня по ТК
     }
-    if (day is DateTime && Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.startSelection))>=0 &&
-        Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.endSelection))<=0)
-    {
-      boxDecoration = ButtonStyles.selectedInnerBoxDecoration;
-    }
-    else {boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;}
+    // if (day is DateTime && Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.startSelection))>=0 &&
+    //     Variables.setZeroTime (day).compareTo(Variables.setZeroTime (States.endSelection))<=0)
+    // {
+    //   boxDecoration = ButtonStyles.selectedInnerBoxDecoration;
+    // }
+    // else {boxDecoration = ButtonStyles.unselectedInnerBoxDecoration;}
 
     return
-      Container( // внутренний контейнер для исключения смешивания цвета внешнего контейнера и кнопки
-          decoration:  boxDecoration,
-          child:
-          ElevatedButton(
-            style: (day
-            is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
-                ? ButtonStyles.headerButtonStyle
-                : style,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Align(
-                    alignment: ((day is! String) && States.showDayTypes)
-                        ? Alignment.bottomCenter
-                        : Alignment.center,
-                    child: Text(
-                      (day is String) ? day : DateFormat.d().format(day),
-                    ),
-                  ),
+      ElevatedButton(
+        style: (day
+        is String) //Если передали значение String, значит отрисовываем шапку, иначе это основная таблица
+            ? ButtonStyles.headerButtonStyle
+            : style,
+        child: Column(
+          children: [
+            Expanded(
+              child: Align(
+                alignment: ((day is! String) && States.showDayTypes)
+                    ? Alignment.bottomCenter
+                    : Alignment.center,
+                child: Text(
+                  (day is String) ? day : DateFormat.d().format(day),
                 ),
-                SizedBox(
-                    height: ((day is! String) && States.showDayTypes) ? 13 : 0,
-                    child: ElevatedButton(
-                      style: ButtonStyles.fadedDayButtonStyle,
-                      child:
-                      Text(
-                        dayNumberByTK, //Номер дня по ТК
-                        style: const TextStyle(fontSize: 9),
-                      ),
-                      onPressed: (){},
-                    )
-                ),
-              ],
+              ),
             ),
-            onLongPress: () {},
-            onPressed: (){
-              if (States.startSelection == DateTime(2022)) {
-                States.startSelection = day;
-                States.endSelection = day;
+            SizedBox(
+                height: ((day is! String) && States.showDayTypes) ? 13 : 0,
+                child: ElevatedButton(
+                  style: ButtonStyles.fadedDayButtonStyle,
+                  child:
+                  Text(
+                    dayNumberByTK, //Номер дня по ТК
+                    style: const TextStyle(fontSize: 9),
+                  ),
+                  onPressed: (){},
+                )
+            ),
+          ],
+        ),
+        onLongPress: () {},
+        onPressed: (){
+          if (States.startSelection == DateTime(2022)) {
+            States.startSelection = day;
+            States.endSelection = day;
+          }
+          else {
+            if( day == States.startSelection){
+              States.startSelection = DateTime(2022);
+              States.endSelection = DateTime(2022);
+            }
+            else{
+              if( States.startSelection != States.endSelection) {
+                States.startSelection = DateTime(2022);
+                States.endSelection = DateTime(2022);
               }
-              else {
-                if( day == States.startSelection){
-                  States.startSelection = DateTime(2022);
-                  States.endSelection = DateTime(2022);
-                }
-                else{
-                  if( States.startSelection != States.endSelection) {
-                    States.startSelection = DateTime(2022);
-                    States.endSelection = DateTime(2022);
-                  }
-                  else{
-                    States.endSelection=day;
-                  }
-
-                }
-
+              else{
+                States.endSelection=day;
               }
+
+            }
+
+          }
 //todo: доделать выбор диапазона
-            },
-          )
+        },
       )
     ;
   }
