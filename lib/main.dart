@@ -477,6 +477,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       builder: (context) => EventsScreen(
                           stream: FirebaseFirestore.instance
                               .collection('events')
+                              .where('userName',
+                              arrayContainsAny: Variables.selectedUsers)
                               .snapshots(),
                           isDateSorted: true,
                           date: day)));

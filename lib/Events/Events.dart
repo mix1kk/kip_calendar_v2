@@ -54,13 +54,6 @@ class _EventsScreenState extends State<EventsScreen> {
         // centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () async {
-              await Events.deleteAllEvents();
-
-            },
-          ),
-          IconButton(
             onPressed: () {
               MyApp.menuNavigationDialog(context);
             },

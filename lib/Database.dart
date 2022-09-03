@@ -419,25 +419,5 @@ static  Events getEventFromSnapshot(DocumentSnapshot document)  {
      Variables.allEvents = await Events.getAllEventsForUser(
          Variables.selectedUsers);
   }
-  static Future deleteAllEvents() async {//todo: не забыть убрать эту функцию
-    //удаление всех событий из базы данных
-      await FirebaseFirestore.instance
-          .collection('events')
-          .get()
-         .then((QuerySnapshot querySnapshot) {
-        querySnapshot.docs.forEach((doc) {
-           FirebaseFirestore.instance
-              .collection('events')
-               .doc(doc.id)
-               .delete();
-        });
-
-        });
-      Variables.allEvents = await Events.getAllEventsForUser(
-          Variables.selectedUsers);
-
-
-  }
-
 
 }

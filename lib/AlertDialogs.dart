@@ -668,9 +668,9 @@ class AlertDialogs {
                                       typeOfEventController.text =
                                       Variables.typesOfEvents[index];
                                       Variables.currentEvent.typeOfEvent=typeOfEventController.text;
-                                      if (Variables.currentEvent.event == 'eventName') {
+                                     // if (Variables.currentEvent.event == 'eventName') {
                                         Variables.currentEvent.event = Variables.currentEvent.typeOfEvent;
-                                      }
+                                    //  }
                                       Navigator.of(context).pop();
                                       setState(() {});
                                     },
