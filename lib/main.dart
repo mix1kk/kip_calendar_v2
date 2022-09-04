@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kip_calendar_v2/Users/Users.dart';
 import 'AlertDialogs.dart';
+import 'AllUsersList/AllUsers.dart';
 import 'Database.dart';
 import 'Events/Events.dart';
 import 'Schedules/Schedules.dart';
@@ -54,6 +55,18 @@ class MyApp extends StatelessWidget {
                 },
               ),
               SimpleDialogOption(
+                child: const Text("Все пользователи"),
+                onPressed: () async{
+
+                   List <Users> users = await Users.getAllUsers();
+                  Navigator.of(context).pop();
+                  Navigator.pushNamed(
+                    context,
+                    '/allUsers',arguments: <List<Users>>{users}
+                  );
+                },
+              ),
+              SimpleDialogOption(
                 child: const Text("Графики"),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -80,6 +93,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       initialRoute: '/calendar',
       routes: {
@@ -93,6 +107,7 @@ class MyApp extends StatelessWidget {
         '/schedules': (context) => const SchedulesScreen(),
         '/users': (context) => const UsersScreen(),
         '/calendar': (context) => const CalendarScreen(),
+        '/allUsers': (context) =>  AllUsersScreen(users: [],),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -111,6 +126,19 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+
+  final ScrollController controller = ScrollController();
+
+   void scrollDown() {//промотка списка на конкретную величину, перенести в календарь
+     double shift = DateTime.now().difference(DateTime(2022)).inDays/7+6;
+     controller.jumpTo(controller.initialScrollOffset+Variables.rowHeight * shift);
+   /* controller.animateTo(
+      controller.initialScrollOffset+Variables.rowHeight * shift,
+      duration: const Duration(seconds: 3),
+      curve: Curves.fastOutSlowIn,
+    );*/
+  }
+
   static getNumberOfWeek(DateTime day) {
     //возвращает номер недели введенного дня
     final startOfYear = DateTime(day.year);
@@ -138,9 +166,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget mainBodyCalendarMonthScreen(DateTime day, context) {
+
     //основная таблица  на экране CalendarMonthScreen
     return Expanded(
-      child: ListView.builder(itemBuilder: (context, index) {
+      child: ListView.builder(controller: controller,itemBuilder: (context, index) {
+
         //скрытие прошедших месяцев
         DateTime lastDayOfWeek = day.add(Duration(
             days: 7 - day.weekday)); //вычисление даты последнего дня в неделе
@@ -159,7 +189,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           }
         }
         //скрытие прошедших месяцев
-        return Column(children: [
+        return Column (children: [
           SizedBox(
             //Для отрисовки последней недели предыдущего месяца с затемненными днями
             height: (currentDay.day < 7) ? Variables.rowHeight : 0.0,
@@ -529,6 +559,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     return RefreshIndicator(
       onRefresh: () {
         return /*Widgets.*/ pullRefresh(context);
@@ -536,6 +567,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       child: Scaffold(
         appBar: AppBar(
           actions: [
+            IconButton(
+              icon: const Icon(Icons.anchor_sharp),
+              onPressed: () {
+                scrollDown();
+                // setState(() {
+                // });
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.update),
               onPressed: () {

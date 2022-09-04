@@ -101,7 +101,7 @@ return beginningOfDay;
 
 class States{
  static bool showDayTypes = true;
- static bool isPulled = false;
+ static bool isPulled = true;
  static bool isLastWeek = false;
  static List<bool> isNamePressed=List.filled(250, false);
 static String eventPressed='';

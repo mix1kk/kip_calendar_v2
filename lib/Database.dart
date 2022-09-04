@@ -153,6 +153,33 @@ class Users {
     });
     return userNames;
   }
+  static Future getAllUsers() async {
+    //чтение из базы данных
+    List<Users> users= [];
+    await FirebaseFirestore.instance
+        .collection('users')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((documentSnapshot) {
+        Users user = Users(
+            documentSnapshot.get('name'),
+            documentSnapshot.get('password'),
+        documentSnapshot.get('tableNumber'),
+        documentSnapshot.get('position'),
+        documentSnapshot.get('dateOfBirth').toDate(),
+        documentSnapshot.get('dateOfEmployment').toDate(),
+        documentSnapshot.get('scheduleName'),
+        documentSnapshot.get('unit'),
+        documentSnapshot.get('phoneNumber'),
+        documentSnapshot.get('role'),
+        documentSnapshot.get('schedule').cast<int>(),
+        documentSnapshot.get('isExpanded')
+        );
+        users.add(user);
+      });
+    });
+    return users;
+  }
 
   static deleteUser(String userName) async {
     //чтение из базы данных

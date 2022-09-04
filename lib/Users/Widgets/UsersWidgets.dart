@@ -12,6 +12,8 @@ final TextEditingController scheduleNameController = TextEditingController();
 
 
 class UsersWidgets {
+
+
   // static getNumberOfWeek(DateTime day) {
   //   //возвращает номер недели введенного дня
   //   final startOfYear = DateTime(day.year);
@@ -35,6 +37,9 @@ class UsersWidgets {
 
 
   static Widget usersScreen( context) {
+
+
+
     final Stream<QuerySnapshot> _usersStream =
     FirebaseFirestore.instance.collection('users').snapshots();
     //основная таблица  на экране UsersScreen
