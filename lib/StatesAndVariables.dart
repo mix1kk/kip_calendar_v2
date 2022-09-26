@@ -9,7 +9,7 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    static List<int> schedule = List.filled(1460, 26);//для инициализации пользователя
    static double rowHeight = 40.0; // Высота строк
    static double firstColumnWidth = 60.0; //Ширина первого столбца с номерами недели
-   static List<Events>allEvents=[];
+//   static List<Events>allEvents=[];
   static Map<int,String> numbersForWorkingDays=
   {1: 'Я',
    2: 'Н',
@@ -33,6 +33,11 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     'Отгул',
     'Изменение графика'
   ];
+  static List<Schedules> allSchedules = [];
+  static List<Users> allUsers = [];
+  static List <Events> allEvents = [];
+
+
   static Schedules currentUserSchedule=Schedules('0',List.filled(56, 26),false);
   static Schedules selectedSchedule=Schedules('',List.filled(56, 26),false);
   static void setSelectedUserNamePrefs (username)async{
@@ -44,8 +49,12 @@ final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
    SharedPreferences prefs = await _prefs;
       Variables.selectedUser = (prefs.getString('name')==null)?Variables.currentUser:await Users.getUserByName(prefs.getString('name')!);
       currentUserSchedule = await Schedules.getSchedule(Variables.selectedUser.scheduleName);
-      allEvents = await Events.getAllEventsForUser([Variables.selectedUser.name]);
-      selectedUsers.add(Variables.selectedUser.name);
+     // allEvents = await Events.getAllEventsForUser([Variables.selectedUser.name]);
+     allEvents = await Events.getAllEvents();
+     allSchedules = await Schedules.getAllSchedules();
+     allUsers = await Users.getAllUsers();
+     selectedUsers.add(Variables.selectedUser.name);
+
     }
 
  static Users selectedUser = Users(//выбранный главным пользователь

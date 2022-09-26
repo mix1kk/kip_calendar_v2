@@ -530,7 +530,7 @@ class AlertDialogs {
 
   static Future selectUsersAlertDialog(context, link) async {
     List<String> users = await Users.getAllUsersNames();
-    List<String> selectedUsers = [Variables.selectedUser.name];
+    List<String> selectedUsers = Variables.selectedUsers;
     showDialog(
         context: context,
         builder: (BuildContext context) {

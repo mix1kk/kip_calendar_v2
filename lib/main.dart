@@ -9,7 +9,6 @@ import 'Events/Events.dart';
 import 'Schedules/Schedules.dart';
 import 'Schedules/Widgets/SchedulesWidgets.dart';
 import 'Styles.dart';
-import 'Widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'StatesAndVariables.dart';
@@ -20,6 +19,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Variables.getPrefs();
+  // Variables.allSchedules = await Schedules.getAllSchedules();
 
   runApp(const MyApp());
 }
@@ -58,11 +58,11 @@ class MyApp extends StatelessWidget {
                 child: const Text("Все пользователи"),
                 onPressed: () async{
 
-                   List <Users> users = await Users.getAllUsers();
+                 //  List <Users> users = await Users.getAllUsers();
                   Navigator.of(context).pop();
                   Navigator.pushNamed(
                     context,
-                    '/allUsers',arguments: <List<Users>>{users}
+                    '/allUsers',arguments: <List<Users>>{Variables.allUsers}
                   );
                 },
               ),
@@ -107,7 +107,7 @@ class MyApp extends StatelessWidget {
         '/schedules': (context) => const SchedulesScreen(),
         '/users': (context) => const UsersScreen(),
         '/calendar': (context) => const CalendarScreen(),
-        '/allUsers': (context) =>  AllUsersScreen(users: [],),
+        '/allUsers': (context) =>  const AllUsersScreen(users: [],),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -271,12 +271,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
             style = ButtonStyles.fadedDayButtonStyle;
             secondStyle = style;
           } else {
-            // раскрашивание дней в соответствии с графиком
+            /// раскрашивание дней в соответствии с графиком
             secondStyle = ButtonStyles.dayStyle(
                 week[day], Variables.currentUserSchedule.schedule, callPlace);
             style = secondStyle;
             for (int i = 0; i < Variables.allEvents.length; i++) {
-              //определение ивента в текущий день и окрашивание рамки в цвет ивента
+              ///определение ивента в текущий день и окрашивание рамки в цвет ивента
 
               if ((Variables.setZeroTime(week[day]).compareTo(
                           Variables.setZeroTime(

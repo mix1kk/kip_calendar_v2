@@ -50,7 +50,23 @@ class Schedules {
         .doc(scheduleName)
         .delete();
   }
-
+  static getAllSchedules() async {//чтение всех графиков работы и выдача их в виде мап (имя:график)
+    List <Schedules> schedules = [];
+    await FirebaseFirestore.instance
+        .collection('schedules')
+        .get()
+        .then((QuerySnapshot querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        Schedules schedule = Schedules(
+            doc.get('name'),
+            doc.get('schedule').cast<int>(),
+            doc.get('isExpanded')
+        );
+        schedules.add(schedule);
+      });
+    });
+    return schedules;
+  }
 
   static getWorkingDay(DateTime currentDay, List<int> schedule) {
     Duration difference = currentDay.difference(
