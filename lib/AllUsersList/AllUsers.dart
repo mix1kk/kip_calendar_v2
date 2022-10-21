@@ -45,6 +45,10 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
 
       for (int i = 0; i < Variables.allEvents.length; i++) {
         //определение ивента в текущий день для окрашивания рамки в цвет ивента
+        if ((day.year == DateTime.now().year) && (day.month == DateTime.now().month) && (day.day == DateTime.now().day)){
+          style = ButtonStyles.currentDayButtonStyle;
+        }
+        else {
         if ((Variables.setZeroTime(day).compareTo(
                     Variables.setZeroTime(Variables.allEvents[i].startDate)) >=
                 0) &&
@@ -71,14 +75,15 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
           }
         }
       }
+      }
     }
 
     return style;
   }
 
-  void jumpToDate() {
+  void jumpToDate(DateTime dateTime) {
     //промотка списка на конкретную величину, перенести в календарь
-    double shift = (DateTime.now().difference(DateTime(2022)).inDays - 3) *
+    double shift = (dateTime.difference(DateTime(2022)).inDays - 3) *
         Variables.rowHeight;
     _controllers.jumpTo(shift);
 
@@ -98,7 +103,7 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
           IconButton(
             icon: const Icon(Icons.update),
             onPressed: () {
-              jumpToDate();
+              jumpToDate(DateTime.now());
               // setState(() {});
             },
           ),
@@ -218,16 +223,16 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                 itemCount: Variables.allUsers.length,
                 padding: const EdgeInsets.all(0),
                 scrollDirection: Axis.vertical,
-                itemBuilder: (BuildContext context, int index) {
+                itemBuilder: (BuildContext context, int rowIndex) {
                   List<int> userSchedule = List.filled(56, 26);
                   for (int i = 0; i < Variables.allSchedules.length; i++) {
                     if (Variables.allSchedules[i].name ==
-                        Variables.allUsers[index].scheduleName) {
+                        Variables.allUsers[rowIndex].scheduleName) {
                       //для каждого пользователя свой график
                       userSchedule = Variables.allSchedules[i].schedule;
                     }
                   }
-                  List<String> _initials = Variables.allUsers[index].name
+                  List<String> _initials = Variables.allUsers[rowIndex].name
                       .split(' '); //разделяет фио по словам
 
                   return Row(
@@ -237,7 +242,7 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                         padding: const EdgeInsets.all(2),
                         width: Variables.rowHeight * 3,
                         height: (Variables.selectedUsers
-                                .contains(Variables.allUsers[index].name))
+                                .contains(Variables.allUsers[rowIndex].name))
                             ? Variables.rowHeight
                             : 0.0,
                         child: ElevatedButton(
@@ -256,18 +261,18 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                         width: MediaQuery.of(context).size.width -
                             Variables.rowHeight * 3,
                         height: (Variables.selectedUsers
-                                .contains(Variables.allUsers[index].name))
+                                .contains(Variables.allUsers[rowIndex].name))
                             ? Variables.rowHeight
                             : 0.0,
                         child: ListView.builder(
-                          key: ObjectKey(Variables.allUsers[index].name),
+                          key: ObjectKey(Variables.allUsers[rowIndex].name),
                           //ключ нужен для добавления контроллеров скролла в группу
                           primary: false,
                           padding: const EdgeInsets.all(2),
                           controller: _controllers.addAndGet(),
                           //добавление контроллеров скролла в группу для совместного скролла всех строк
                           scrollDirection: Axis.horizontal,
-                          itemBuilder: (BuildContext context, int ind) {
+                          itemBuilder: (BuildContext context, int columnIndex) {
                             return Container(
                               // одна ячейка с днем
 
@@ -275,7 +280,7 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                               width: Variables.rowHeight,
                               height: Variables.rowHeight,
                               child: ElevatedButton(
-                                style: getButtonStyle(ind,userSchedule,Variables.allUsers[index]),
+                                style: getButtonStyle(columnIndex,userSchedule,Variables.allUsers[rowIndex]),
 
                                 /// ButtonStyles.dayStyle(
                                 //     DateTime(2022).add(Duration(days: index)),
@@ -290,13 +295,13 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                                     child: ElevatedButton(
                                       style: ButtonStyles.dayStyle(
                                           DateTime(2022)
-                                              .add(Duration(days: ind)),
+                                              .add(Duration(days: columnIndex)),
                                           userSchedule,
                                           '/allUsers'),
                                       child: Text(
                                           /*data['schedule'][index].toString()*/
                                           DateTime(2022)
-                                              .add(Duration(days: ind))
+                                              .add(Duration(days: columnIndex))
                                               .day
                                               .toString()),
                                       onPressed: () {},
@@ -311,92 +316,7 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                       ),
                     ],
                   );
-                  /* StreamBuilder<QuerySnapshot>(
-                  stream:
-                      FirebaseFirestore.instance.collection('users').snapshots(),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (snapshot.hasError) {
-                      return const Text('Что-то пошло не так');
-                    }
 
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return
-                      ListView(
-                        children:
-                            snapshot.data!.docs.map((DocumentSnapshot document) {
-
-                      Map<String, dynamic> data =
-                          document.data()! as Map<String, dynamic>;
-                      List<int> userSchedule = List.filled(56, 26);
-
-                      for (int i = 0; i < Variables.allSchedules.length; i++) {
-                        if (Variables.allSchedules[i].name == data['scheduleName']) {//для каждого пользователя свой график
-                          userSchedule = Variables.allSchedules[i].schedule;
-                        }
-                      }
-                      List<String> _initials =
-                          data['name'].split(' '); //разделяет фио по словам
-
-                      return Row(children: [
-                        Container(
-                          ///Первый столбец с именами
-                          padding: const EdgeInsets.all(2),
-                          width: Variables.rowHeight * 3,
-                          height: (Variables.selectedUsers.contains(data['name']))?Variables.rowHeight:0.0,
-                          child: ElevatedButton(
-                            style: ButtonStyles.usersListButtonStyle,
-                            child: Text(_initials[0] +
-                                ' ' +
-                                _initials[1][0] +
-                                '. ' +
-                                _initials[2][0] +
-                                '.'),
-                            onPressed: () {},
-                          ),
-                        ),
-                        SizedBox(
-                          ///остальная часть с днями
-                          width: MediaQuery.of(context).size.width -
-                              Variables.rowHeight * 3,
-                          height: (Variables.selectedUsers.contains(data['name']))?Variables.rowHeight:0.0,
-                          child: ListView.builder(
-                            key: ObjectKey(data['name']),
-                            //ключ нужен для добавления контроллеров скролла в группу
-                            primary: false,
-                            padding: const EdgeInsets.all(2),
-                            controller: _controllers.addAndGet(),
-                            //добавление контроллеров скролла в группу для совместного скролла всех строк
-                            scrollDirection: Axis.horizontal,
-                            itemBuilder: (BuildContext context, int index) {
-                              return Container(
-                                // одна ячейка с днем
-                                padding: const EdgeInsets.all(2),
-                                width: Variables.rowHeight,
-                                height: Variables.rowHeight,
-                                child: ElevatedButton(
-                                  style: ButtonStyles.dayStyle(
-                                      DateTime(2022).add(Duration(days: index)),
-                                      userSchedule,
-                                      '/allUsers'),// базовая раскраска по графику
-                                  child: Text(
-                                      /*data['schedule'][index].toString()*/
-                                      DateTime(2022)
-                                          .add(Duration(days: index))
-                                          .day
-                                          .toString()),
-                                  onPressed: () {},
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ]);
-                    }).toList());
-                  }),
-              */
                 }),
           )
           // ),
